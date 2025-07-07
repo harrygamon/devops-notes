@@ -14,10 +14,13 @@ permissions:
   security-events: write
   actions: read
   pull-requests: read
+  packages: read
 
 env:
   TRIVY_NO_PROGRESS: true
   TRIVY_SKIP_UPDATE: true
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   security-scan:
@@ -88,7 +91,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Try to pull latest image from registry
+        id: pull-image
+        run: |
+          # Try to pull the latest image from registry
+          if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:latest 2>/dev/null; then
+            echo "image-source=registry" >> $GITHUB_OUTPUT
+            echo "Successfully pulled image from registry"
+          else
+            echo "image-source=local" >> $GITHUB_OUTPUT
+            echo "Registry image not found, will build locally"
+          fi
+
+      - name: Build Docker image locally
+        if: steps.pull-image.outputs.image-source == 'local'
         run: |
           docker build --target web -t devops-notes:test .
           echo "Docker image built successfully:"
@@ -97,7 +113,7 @@ jobs:
       - name: Run Trivy container scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'devops-notes:test'
+          image-ref: ${{ steps.pull-image.outputs.image-source == 'registry' && format('{0}/{1}-web:latest', env.REGISTRY, env.IMAGE_NAME) || 'devops-notes:test' }}
           format: 'sarif'
           output: 'trivy-container-results.sarif'
           severity: 'CRITICAL,HIGH'
@@ -124,4 +140,5 @@ jobs:
         if: always()
         run: |
           docker rmi devops-notes:test || true
+          docker rmi ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:latest || true
           docker system prune -f || true 
