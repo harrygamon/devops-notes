@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import { HashRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom'
+import { HashRouter as Router, Route, Routes, Link, useNavigate, Navigate } from 'react-router-dom'
 import AIPage from './pages/AIPage'
+import LoginPage from './pages/LoginPage'
 import apiService from './services/api'
 
 function App() {
@@ -17,6 +18,13 @@ function App() {
   const [questionHistory, setQuestionHistory] = useState([])
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('devops-dark-mode') === 'true';
+  });
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('devops-logged-in') === 'true';
+  });
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('devops-user');
+    return savedUser ? JSON.parse(savedUser) : null;
   });
 
   // Load notes from localStorage on component mount
@@ -46,6 +54,20 @@ function App() {
     document.body.classList.toggle('dark-mode', darkMode);
     localStorage.setItem('devops-dark-mode', darkMode);
   }, [darkMode]);
+
+  const handleLogin = (userData) => {
+    setIsLoggedIn(true);
+    setUser(userData);
+    localStorage.setItem('devops-logged-in', 'true');
+    localStorage.setItem('devops-user', JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUser(null);
+    localStorage.removeItem('devops-logged-in');
+    localStorage.removeItem('devops-user');
+  };
 
   const saveNote = () => {
     if (!currentNote.trim() || !noteTitle.trim()) return
@@ -439,15 +461,34 @@ function App() {
             <Link to="/review" className="nav-link">🔍 Code Review</Link>
             <Link to="/questions" className="nav-link">❓ Q&A</Link>
           </div>
+          {isLoggedIn && (
+            <div className="nav-user">
+              <span className="user-greeting">Welcome, {user?.username}!</span>
+              <button onClick={handleLogout} className="logout-btn">Logout</button>
+            </div>
+          )}
         </nav>
 
         <main className="main-content">
           <Routes>
-            <Route path="/" element={renderWelcomePage()} />
-            <Route path="/notes" element={renderNotesPage()} />
-            <Route path="/ai" element={<AIPage darkMode={darkMode} setDarkMode={setDarkMode} />} />
-            <Route path="/review" element={renderAiReviewerPage()} />
-            <Route path="/questions" element={renderAiQuestionsPage()} />
+            <Route path="/login" element={
+              isLoggedIn ? <Navigate to="/" /> : <LoginPage onLogin={handleLogin} />
+            } />
+            <Route path="/" element={
+              isLoggedIn ? renderWelcomePage() : <Navigate to="/login" />
+            } />
+            <Route path="/notes" element={
+              isLoggedIn ? renderNotesPage() : <Navigate to="/login" />
+            } />
+            <Route path="/ai" element={
+              isLoggedIn ? <AIPage darkMode={darkMode} setDarkMode={setDarkMode} /> : <Navigate to="/login" />
+            } />
+            <Route path="/review" element={
+              isLoggedIn ? renderAiReviewerPage() : <Navigate to="/login" />
+            } />
+            <Route path="/questions" element={
+              isLoggedIn ? renderAiQuestionsPage() : <Navigate to="/login" />
+            } />
           </Routes>
         </main>
       </div>
