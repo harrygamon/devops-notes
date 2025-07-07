@@ -1,4 +1,5 @@
 import Chatbot from '../components/Chatbot';
+import OllamaStatus from '../components/OllamaStatus';
 import './AIPage.css';
 
 const AIPage = ({ darkMode, setDarkMode }) => {
@@ -13,6 +14,8 @@ const AIPage = ({ darkMode, setDarkMode }) => {
           {darkMode ? '☀️' : '🌙'}
         </button>
       </div>
+      
+      <OllamaStatus />
       <Chatbot />
     </div>
   );

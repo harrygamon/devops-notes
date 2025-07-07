@@ -13,6 +13,7 @@ A modern web application that combines note-taking with AI-powered DevOps assist
 ### 🤖 AI Assistant
 - Chat with an AI-powered DevOps expert
 - Get instant answers to Docker, Kubernetes, CI/CD questions
+- **Ollama Integration**: Use local Qwen3 model for enhanced AI responses
 - Intelligent fallback responses when AI is unavailable
 - Conversation history and context awareness
 
@@ -40,13 +41,14 @@ A modern web application that combines note-taking with AI-powered DevOps assist
 - **Styling**: CSS3 with modern design patterns
 - **Storage**: LocalStorage for persistence
 - **Deployment**: GitHub Pages (static hosting)
-- **AI**: Client-side fallback responses
+- **AI**: Ollama with Qwen3 model + client-side fallback responses
 
 ## 📋 Prerequisites
 
 - Node.js 18+ 
 - npm or yarn
 - GitHub account (for deployment)
+- **Optional**: Ollama for enhanced AI capabilities
 
 ## 🚀 Quick Start
 
@@ -74,6 +76,44 @@ npm run build:gh-pages
 # Build for regular deployment
 npm run build
 ```
+
+## 🤖 AI Configuration
+
+### Option 1: Ollama with Qwen3 (Recommended)
+For enhanced AI capabilities, install and configure Ollama:
+
+#### Install Ollama
+```bash
+# Linux/macOS
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Windows
+# Download from https://ollama.ai/download
+```
+
+#### Start Ollama and Pull Qwen3 Model
+```bash
+# Start Ollama service
+ollama serve
+
+# Pull Qwen3 model (in a new terminal)
+ollama pull qwen2.5:3b
+```
+
+#### Verify Setup
+1. Open the app in your browser
+2. Go to the AI Assistant page
+3. Check the "AI Model Status" section
+4. You should see "✅ Ollama is running" and the Qwen3 model listed
+
+### Option 2: Fallback Mode (Default)
+If Ollama is not available, the app provides intelligent fallback responses for:
+- Docker and containerization
+- Kubernetes and orchestration
+- CI/CD pipelines
+- Infrastructure as Code
+- Monitoring and observability
+- Security best practices
 
 ## 🌐 GitHub Pages Deployment
 
@@ -110,17 +150,6 @@ npm run deploy
 | `npm run deploy` | Deploy to GitHub Pages |
 | `npm run lint` | Run ESLint |
 
-## 🤖 AI Configuration
-
-### Client-Side Fallback (Default)
-The app includes comprehensive fallback responses for common DevOps topics:
-- Docker and containerization
-- Kubernetes and orchestration
-- CI/CD pipelines
-- Infrastructure as Code
-- Monitoring and observability
-- Security best practices
-
 ## 📁 Project Structure
 
 ```
@@ -128,12 +157,14 @@ devops-notes/
 ├── src/
 │   ├── components/          # React components
 │   │   ├── Chatbot.jsx     # AI chat interface
-│   │   └── Chatbot.css     # Chat styling
+│   │   ├── Chatbot.css     # Chat styling
+│   │   ├── OllamaStatus.jsx # Ollama status component
+│   │   └── OllamaStatus.css # Ollama status styling
 │   ├── pages/              # Page components
 │   │   ├── AIPage.jsx      # AI assistant page
 │   │   └── AIPage.css      # AI page styling
 │   ├── services/           # API services
-│   │   └── api.js          # Client-side API with fallbacks
+│   │   └── api.js          # Ollama API + fallback responses
 │   ├── App.jsx             # Main app component
 │   ├── App.css             # App styling
 │   ├── main.jsx            # React entry point
@@ -155,7 +186,7 @@ The AI assistant uses a conversation-based interface where you can:
 - Ask questions about DevOps tools and practices
 - Get detailed explanations with code examples
 - Build context through conversation history
-- Receive intelligent fallback responses
+- Use Ollama for enhanced responses or fallback to local knowledge base
 
 ### Code Review
 The code review feature analyzes:
@@ -173,7 +204,7 @@ The note system includes:
 
 ## 🔒 Security & Privacy
 
-- **No external API calls** (except optional backend)
+- **No external API calls** (except optional Ollama)
 - **All data stored locally** in browser
 - **No cloud dependencies** for core functionality
 - **Privacy-focused design**
@@ -223,9 +254,16 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Ensure the base path is correct in vite.config.js
 
 **AI Assistant not responding:**
-- The app uses client-side fallback responses
-- No backend required for basic functionality
-- Check browser console for errors
+- Check if Ollama is running: `ollama serve`
+- Verify the model is installed: `ollama list`
+- Check the console for connection errors
+- The app uses client-side fallback responses as backup
+
+**Ollama connection issues:**
+- Ensure Ollama is running on `http://localhost:11434`
+- Check if the Qwen3 model is installed: `ollama list`
+- Pull the model if missing: `ollama pull qwen2.5:3b`
+- Check browser console for CORS errors
 
 **Build errors:**
 - Ensure Node.js 18+ is installed

@@ -1,4 +1,4 @@
-// Client-side API service with fallback responses
+// Client-side API service with Ollama support and fallback responses
 class APIService {
   constructor() {
     this.baseURL = process.env.NODE_ENV === 'production' 
@@ -6,6 +6,10 @@ class APIService {
       : 'http://localhost:3001';
     this.isBackendAvailable = false;
     this.checkBackendAvailability();
+    this.ollamaURL = 'http://localhost:11434';
+    this.isOllamaAvailable = false;
+    this.model = 'qwen2.5:3b'; // Qwen3 model
+    this.checkOllamaAvailability();
   }
 
   async checkBackendAvailability() {
@@ -21,24 +25,69 @@ class APIService {
     }
   }
 
-  // AI Chat endpoint
+  async checkOllamaAvailability() {
+    try {
+      const response = await fetch(`${this.ollamaURL}/api/tags`, {
+        method: 'GET',
+        timeout: 3000
+      });
+      if (response.ok) {
+        const data = await response.json();
+        this.isOllamaAvailable = data.models && data.models.length > 0;
+        console.log('Ollama available:', this.isOllamaAvailable);
+        
+        // Check if Qwen3 model is available
+        if (this.isOllamaAvailable) {
+          const hasQwen = data.models.some(model => 
+            model.name.includes('qwen') || model.name.includes('Qwen')
+          );
+          if (!hasQwen) {
+            console.log('Qwen model not found. Available models:', data.models.map(m => m.name));
+          }
+        }
+      }
+    } catch (error) {
+      this.isOllamaAvailable = false;
+      console.log('Ollama not available, using fallback responses');
+    }
+  }
+
+  // AI Chat endpoint with Ollama support
   async chat(messages) {
-    if (this.isBackendAvailable) {
+    if (this.isOllamaAvailable) {
       try {
-        const response = await fetch(`${this.baseURL}/api/chat`, {
+        const response = await fetch(`${this.ollamaURL}/api/chat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ messages })
+          body: JSON.stringify({
+            model: this.model,
+            messages: messages.map(msg => ({
+              role: msg.role,
+              content: msg.content
+            })),
+            stream: false,
+            options: {
+              temperature: 0.7,
+              top_p: 0.9,
+              max_tokens: 2048
+            }
+          })
         });
 
         if (response.ok) {
           const data = await response.json();
-          return data;
+          return {
+            response: data.message.content,
+            provider: 'ollama',
+            model: this.model,
+            fallback: false
+          };
         }
       } catch (error) {
-        console.error('Backend chat error:', error);
+        console.error('Ollama chat error:', error);
+        // Fall back to local responses
       }
     }
 
@@ -46,24 +95,56 @@ class APIService {
     return this.generateFallbackChatResponse(messages);
   }
 
-  // Code Review endpoint
+  // Code Review endpoint with Ollama support
   async codeReview(code, context) {
-    if (this.isBackendAvailable) {
+    if (this.isOllamaAvailable) {
       try {
-        const response = await fetch(`${this.baseURL}/api/code-review`, {
+        const prompt = `You are an expert DevOps engineer and code reviewer. Please review the following code and provide detailed feedback on:
+
+1. Security best practices
+2. Performance optimizations
+3. DevOps best practices
+4. Code quality and maintainability
+5. Specific recommendations for improvement
+
+Context: ${context}
+
+Code to review:
+\`\`\`
+${code}
+\`\`\`
+
+Please provide a comprehensive review with actionable recommendations.`;
+
+        const response = await fetch(`${this.ollamaURL}/api/generate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ code, context })
+          body: JSON.stringify({
+            model: this.model,
+            prompt: prompt,
+            stream: false,
+            options: {
+              temperature: 0.3,
+              top_p: 0.9,
+              max_tokens: 2048
+            }
+          })
         });
 
         if (response.ok) {
           const data = await response.json();
-          return data;
+          return {
+            review: data.response,
+            provider: 'ollama',
+            model: this.model,
+            fallback: false
+          };
         }
       } catch (error) {
-        console.error('Backend code review error:', error);
+        console.error('Ollama code review error:', error);
+        // Fall back to local responses
       }
     }
 
@@ -71,22 +152,56 @@ class APIService {
     return this.generateFallbackCodeReview(code, context);
   }
 
-  // News endpoint
+  // News endpoint (keeping fallback only for now)
   async getNews() {
-    if (this.isBackendAvailable) {
-      try {
-        const response = await fetch(`${this.baseURL}/api/news`);
-        if (response.ok) {
-          const data = await response.json();
-          return data;
-        }
-      } catch (error) {
-        console.error('Backend news error:', error);
-      }
-    }
-
-    // Fallback news
     return this.getFallbackNews();
+  }
+
+  // Check if Ollama is available and get model info
+  async getOllamaStatus() {
+    try {
+      const response = await fetch(`${this.ollamaURL}/api/tags`);
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          available: true,
+          models: data.models || [],
+          currentModel: this.model
+        };
+      }
+    } catch (error) {
+      console.error('Error checking Ollama status:', error);
+    }
+    return {
+      available: false,
+      models: [],
+      currentModel: null
+    };
+  }
+
+  // Pull Qwen3 model if not available
+  async pullQwenModel() {
+    try {
+      console.log('Pulling Qwen3 model...');
+      const response = await fetch(`${this.ollamaURL}/api/pull`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: this.model
+        })
+      });
+
+      if (response.ok) {
+        console.log('Qwen3 model pulled successfully');
+        this.isOllamaAvailable = true;
+        return true;
+      }
+    } catch (error) {
+      console.error('Error pulling Qwen3 model:', error);
+    }
+    return false;
   }
 
   // Fallback chat response generator

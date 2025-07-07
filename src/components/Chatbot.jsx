@@ -22,6 +22,7 @@ const Chatbot = () => {
         role: 'assistant', 
         content: data.response,
         provider: data.provider,
+        model: data.model,
         fallback: data.fallback
       }]);
     } catch (error) {
@@ -43,10 +44,22 @@ const Chatbot = () => {
     }
   };
 
+  const getProviderIcon = (provider, fallback) => {
+    if (fallback) return '🔄';
+    if (provider === 'ollama') return '🤖';
+    return '💬';
+  };
+
+  const getProviderText = (provider, model, fallback) => {
+    if (fallback) return 'Fallback Response';
+    if (provider === 'ollama') return `Ollama (${model || 'Qwen3'})`;
+    return 'AI Response';
+  };
+
   return (
     <div className="chatbot">
       <div className="chat-header">
-        <h2>🤖 AI DevOps Assistant</h2>
+        <h2>💬 Chat with AI Assistant</h2>
         <p>Ask me anything about DevOps, Docker, Kubernetes, CI/CD, and more!</p>
       </div>
       
@@ -74,7 +87,7 @@ const Chatbot = () => {
             {message.provider && (
               <div className="message-meta">
                 <span className={`provider ${message.fallback ? 'fallback' : 'primary'}`}>
-                  {message.fallback ? '🔄 Fallback' : '🤖 AI'}
+                  {getProviderIcon(message.provider, message.fallback)} {getProviderText(message.provider, message.model, message.fallback)}
                 </span>
               </div>
             )}
