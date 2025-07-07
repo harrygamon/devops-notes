@@ -250,40 +250,142 @@ function App() {
     return (
       <div className="welcome-page">
         <div className="welcome-content">
-          <h1>🚀 DevOps Notes</h1>
-          <p>Your personal DevOps assistant and note-taking companion</p>
-          
-          <div className="feature-grid">
-            <div className="feature-card" onClick={() => window.location.hash = '#/notes'}>
-              <h3>📝 Notes</h3>
-              <p>Create and organize your DevOps notes with tags and search</p>
-              <div className="feature-arrow">→</div>
-            </div>
-            <div className="feature-card" onClick={() => window.location.hash = '#/ai'}>
-              <h3>🤖 AI Assistant</h3>
-              <p>Get instant answers to DevOps questions with AI-powered responses</p>
-              <div className="feature-arrow">→</div>
-            </div>
-            <div className="feature-card" onClick={() => window.location.hash = '#/review'}>
-              <h3>🔍 Code Review</h3>
-              <p>Review your infrastructure code with AI-powered analysis</p>
-              <div className="feature-arrow">→</div>
-            </div>
-            <div className="feature-card" onClick={() => window.location.hash = '#/questions'}>
-              <h3>❓ Q&A</h3>
-              <p>Ask questions and save answers for future reference</p>
-              <div className="feature-arrow">→</div>
-            </div>
+          <div className="welcome-header">
+            <h1>🚀 DevOps Notes</h1>
+            <p className="welcome-subtitle">Your comprehensive DevOps workspace for notes, AI assistance, and code review</p>
           </div>
           
-          <div className="quick-stats">
-            <div className="stat">
-              <span className="stat-number">{notes.length}</span>
-              <span className="stat-label">Notes</span>
+          <div className="dashboard-grid">
+            <div className="dashboard-section">
+              <h2>📊 Quick Overview</h2>
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-icon">📝</div>
+                  <div className="stat-content">
+                    <span className="stat-number">{notes.length}</span>
+                    <span className="stat-label">Total Notes</span>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">❓</div>
+                  <div className="stat-content">
+                    <span className="stat-number">{questionHistory.length}</span>
+                    <span className="stat-label">Questions Asked</span>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">🏷️</div>
+                  <div className="stat-content">
+                    <span className="stat-number">{notes.reduce((acc, note) => acc + note.tags.length, 0)}</span>
+                    <span className="stat-label">Total Tags</span>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">📅</div>
+                  <div className="stat-content">
+                    <span className="stat-number">{notes.length > 0 ? new Date(notes[0].timestamp).toLocaleDateString() : 'N/A'}</span>
+                    <span className="stat-label">Last Updated</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="stat">
-              <span className="stat-number">{questionHistory.length}</span>
-              <span className="stat-label">Questions</span>
+
+            <div className="dashboard-section">
+              <h2>🚀 Quick Actions</h2>
+              <div className="feature-grid">
+                <div className="feature-card" onClick={() => window.location.hash = '#/notes'}>
+                  <div className="feature-icon">📝</div>
+                  <div className="feature-content">
+                    <h3>Notes</h3>
+                    <p>Create and organize your DevOps notes with tags and search functionality</p>
+                    <div className="feature-arrow">→</div>
+                  </div>
+                </div>
+                <div className="feature-card" onClick={() => window.location.hash = '#/ai'}>
+                  <div className="feature-icon">🤖</div>
+                  <div className="feature-content">
+                    <h3>AI Assistant</h3>
+                    <p>Get instant answers to DevOps questions with AI-powered responses</p>
+                    <div className="feature-arrow">→</div>
+                  </div>
+                </div>
+                <div className="feature-card" onClick={() => window.location.hash = '#/review'}>
+                  <div className="feature-icon">🔍</div>
+                  <div className="feature-content">
+                    <h3>Code Review</h3>
+                    <p>Review your infrastructure code with AI-powered analysis and suggestions</p>
+                    <div className="feature-arrow">→</div>
+                  </div>
+                </div>
+                <div className="feature-card" onClick={() => window.location.hash = '#/questions'}>
+                  <div className="feature-icon">❓</div>
+                  <div className="feature-content">
+                    <h3>Q&A</h3>
+                    <p>Ask questions and save answers for future reference</p>
+                    <div className="feature-arrow">→</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="dashboard-section">
+              <h2>📋 Recent Activity</h2>
+              <div className="recent-activity">
+                {notes.length > 0 ? (
+                  <div className="recent-notes">
+                    <h3>Latest Notes</h3>
+                    <div className="recent-notes-list">
+                      {notes.slice(0, 3).map((note) => (
+                        <div key={note.id} className="recent-note-item" onClick={() => window.location.hash = '#/notes'}>
+                          <div className="recent-note-title">{note.title}</div>
+                          <div className="recent-note-meta">
+                            <span className="recent-note-time">{note.timestamp}</span>
+                            {note.tags.length > 0 && (
+                              <span className="recent-note-tags">
+                                {note.tags.slice(0, 2).map((tag, index) => (
+                                  <span key={index} className="tag-small">#{tag}</span>
+                                ))}
+                                {note.tags.length > 2 && <span className="tag-more">+{note.tags.length - 2}</span>}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="empty-recent">
+                    <p>No notes yet. Start by creating your first DevOps note!</p>
+                    <button onClick={() => window.location.hash = '#/notes'} className="btn-primary">Create Note</button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="dashboard-section">
+              <h2>💡 DevOps Tips</h2>
+              <div className="tips-grid">
+                <div className="tip-card">
+                  <div className="tip-icon">🐳</div>
+                  <h4>Docker Best Practices</h4>
+                  <p>Use multi-stage builds, minimize layers, and always specify base image versions</p>
+                </div>
+                <div className="tip-card">
+                  <div className="tip-icon">☸️</div>
+                  <h4>Kubernetes Security</h4>
+                  <p>Enable RBAC, use network policies, and regularly update your cluster</p>
+                </div>
+                <div className="tip-card">
+                  <div className="tip-icon">🚀</div>
+                  <h4>CI/CD Optimization</h4>
+                  <p>Cache dependencies, parallelize jobs, and use conditional deployments</p>
+                </div>
+                <div className="tip-card">
+                  <div className="tip-icon">🔒</div>
+                  <h4>Security First</h4>
+                  <p>Scan for vulnerabilities, use secrets management, and implement least privilege</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -391,6 +493,7 @@ function App() {
       <div className="ai-header">
         <div className="ai-header-content">
           <h1 className="ai-title">🔍 AI Code Reviewer</h1>
+          <p className="ai-subtitle">Get instant feedback on your DevOps code with AI-powered analysis</p>
           <div className="ai-header-actions">
             <button 
               className="theme-toggle" 
@@ -404,6 +507,37 @@ function App() {
       </div>
 
       <div className="ai-content">
+        <div className="reviewer-overview">
+          <div className="overview-card">
+            <div className="overview-icon">🔍</div>
+            <div className="overview-content">
+              <h3>Security Analysis</h3>
+              <p>Detect vulnerabilities and security best practices</p>
+            </div>
+          </div>
+          <div className="overview-card">
+            <div className="overview-icon">⚡</div>
+            <div className="overview-content">
+              <h3>Performance Tips</h3>
+              <p>Optimize your code for better performance</p>
+            </div>
+          </div>
+          <div className="overview-card">
+            <div className="overview-icon">🏗️</div>
+            <div className="overview-content">
+              <h3>Best Practices</h3>
+              <p>Follow industry standards and conventions</p>
+            </div>
+          </div>
+          <div className="overview-card">
+            <div className="overview-icon">🐛</div>
+            <div className="overview-content">
+              <h3>Bug Detection</h3>
+              <p>Identify potential issues and errors</p>
+            </div>
+          </div>
+        </div>
+
         <div className="reviewer-container">
           <div className="code-input-section">
             <div className="section-header">
@@ -411,12 +545,23 @@ function App() {
               <p>Paste your DevOps code for AI-powered analysis and suggestions</p>
             </div>
             <div className="code-input-wrapper">
+              <div className="code-examples">
+                <h4>Supported Formats:</h4>
+                <div className="example-tags">
+                  <span className="example-tag">🐳 Dockerfile</span>
+                  <span className="example-tag">☸️ Kubernetes</span>
+                  <span className="example-tag">🏗️ Terraform</span>
+                  <span className="example-tag">🚀 CI/CD</span>
+                  <span className="example-tag">🔧 Shell Scripts</span>
+                  <span className="example-tag">🐍 Python</span>
+                </div>
+              </div>
               <textarea
                 placeholder="Paste your DevOps code here (Dockerfile, Terraform, Kubernetes manifests, etc.)..."
                 value={aiCodeReview}
                 onChange={(e) => setAiCodeReview(e.target.value)}
                 className="code-input"
-                rows="12"
+                rows="15"
               />
               <div className="input-actions">
                 <button 
@@ -438,6 +583,10 @@ function App() {
             </div>
             {aiResponse ? (
               <div className="review-output">
+                <div className="output-header">
+                  <span className="output-status">✅ Review Complete</span>
+                  <span className="output-timestamp">{new Date().toLocaleTimeString()}</span>
+                </div>
                 <div className="output-content">
                   <pre>{aiResponse}</pre>
                 </div>
@@ -467,6 +616,7 @@ function App() {
       <div className="ai-header">
         <div className="ai-header-content">
           <h1 className="ai-title">❓ AI Q&A</h1>
+          <p className="ai-subtitle">Get instant answers to your DevOps questions with AI assistance</p>
           <div className="ai-header-actions">
             <button 
               className="theme-toggle" 
@@ -480,6 +630,37 @@ function App() {
       </div>
 
       <div className="ai-content">
+        <div className="qa-overview">
+          <div className="overview-card">
+            <div className="overview-icon">🐳</div>
+            <div className="overview-content">
+              <h3>Docker & Containers</h3>
+              <p>Containerization, images, and orchestration</p>
+            </div>
+          </div>
+          <div className="overview-card">
+            <div className="overview-icon">☸️</div>
+            <div className="overview-content">
+              <h3>Kubernetes</h3>
+              <p>Cluster management and deployment</p>
+            </div>
+          </div>
+          <div className="overview-card">
+            <div className="overview-icon">🚀</div>
+            <div className="overview-content">
+              <h3>CI/CD Pipelines</h3>
+              <p>Automation and deployment strategies</p>
+            </div>
+          </div>
+          <div className="overview-card">
+            <div className="overview-icon">🔒</div>
+            <div className="overview-content">
+              <h3>Security</h3>
+              <p>Best practices and vulnerability management</p>
+            </div>
+          </div>
+        </div>
+
         <div className="questions-container">
           <div className="question-input-section">
             <div className="section-header">
@@ -487,12 +668,21 @@ function App() {
               <p>Get instant answers to your DevOps questions with AI assistance</p>
             </div>
             <div className="question-input-wrapper">
+              <div className="question-examples">
+                <h4>Example Questions:</h4>
+                <div className="example-questions">
+                  <span className="example-question">"How do I optimize a Dockerfile?"</span>
+                  <span className="example-question">"What are Kubernetes best practices?"</span>
+                  <span className="example-question">"How to set up CI/CD with GitHub Actions?"</span>
+                  <span className="example-question">"What security measures should I implement?"</span>
+                </div>
+              </div>
               <textarea
                 placeholder="Ask anything about Docker, Kubernetes, CI/CD, monitoring, security, etc..."
                 value={aiQuestion}
                 onChange={(e) => setAiQuestion(e.target.value)}
                 className="question-input"
-                rows="4"
+                rows="6"
               />
               <div className="input-actions">
                 <button 
