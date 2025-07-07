@@ -306,6 +306,9 @@ function App() {
       <div className="notes-container">
         <div className="notes-sidebar">
           <div className="note-form">
+            <div className="note-form-header">
+              <h3>{selectedNote ? 'Edit Note' : 'New Note'}</h3>
+            </div>
             <input
               type="text"
               placeholder="Note title..."
@@ -318,7 +321,7 @@ function App() {
               value={currentNote}
               onChange={(e) => setCurrentNote(e.target.value)}
               className="note-content-input"
-              rows="8"
+              rows="6"
             />
             <div className="note-actions">
               {selectedNote ? (
@@ -337,7 +340,9 @@ function App() {
         </div>
 
         <div className="notes-list">
-          <h3>Your Notes ({notes.length})</h3>
+          <div className="notes-list-header">
+            <h3>Your Notes ({notes.length})</h3>
+          </div>
           {notes.length === 0 ? (
             <div className="empty-state">
               <p>No notes yet. Create your first DevOps note!</p>
@@ -345,15 +350,23 @@ function App() {
           ) : (
             <div className="notes-grid">
               {notes.map((note) => (
-                <div key={note.id} className="note-card">
+                <div key={note.id} className="note-card" onClick={() => editNote(note)}>
                   <div className="note-header">
                     <h4>{note.title}</h4>
                     <div className="note-actions">
-                      <button onClick={() => editNote(note)} className="btn-icon">✏️</button>
-                      <button onClick={() => deleteNote(note.id)} className="btn-icon">🗑️</button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNote(note.id);
+                        }} 
+                        className="btn-icon"
+                        title="Delete note"
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </div>
-                  <p className="note-content">{note.content.substring(0, 150)}...</p>
+                  <p className="note-content">{note.content.substring(0, 120)}...</p>
                   <div className="note-meta">
                     <span className="note-timestamp">{note.timestamp}</span>
                     {note.tags.length > 0 && (
