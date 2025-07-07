@@ -1,5 +1,3 @@
-import { pipeline } from '@xenova/transformers';
-
 class DistilGPT2Service {
   constructor() {
     this.model = null;
@@ -7,6 +5,34 @@ class DistilGPT2Service {
     this.isLoading = false;
     this.isLoaded = false;
     this.loadPromise = null;
+    this.transformersAvailable = false;
+    this.pipeline = null;
+  }
+
+  async initializeTransformers() {
+    if (this.transformersAvailable) {
+      return true;
+    }
+
+    try {
+      console.log('🔧 Initializing transformers.js...');
+      
+      // Add timeout to prevent hanging
+      const importPromise = import('@xenova/transformers');
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Transformers.js import timeout after 10 seconds')), 10000)
+      );
+      
+      const transformers = await Promise.race([importPromise, timeoutPromise]);
+      this.pipeline = transformers.pipeline;
+      this.transformersAvailable = true;
+      console.log('✅ Transformers.js initialized successfully!');
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to initialize transformers.js:', error);
+      this.transformersAvailable = false;
+      return false;
+    }
   }
 
   async loadModel() {
@@ -18,18 +44,32 @@ class DistilGPT2Service {
       return this.loadPromise;
     }
 
+    // First, try to initialize transformers.js
+    const transformersReady = await this.initializeTransformers();
+    if (!transformersReady) {
+      console.error('❌ Transformers.js not available, cannot load model');
+      return false;
+    }
+
     this.isLoading = true;
     console.log('🤖 Loading DistilGPT2 model...');
 
     try {
-      this.loadPromise = pipeline('text-generation', 'distilgpt2', {
+      // Add timeout to prevent hanging
+      const modelPromise = this.pipeline('text-generation', 'distilgpt2', {
         quantized: false,
         progress_callback: (progress) => {
           console.log(`📦 Loading progress: ${Math.round(progress * 100)}%`);
         }
       });
 
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Model loading timeout after 30 seconds')), 30000)
+      );
+
+      this.loadPromise = Promise.race([modelPromise, timeoutPromise]);
       this.model = await this.loadPromise;
+      
       this.isLoaded = true;
       this.isLoading = false;
       console.log('✅ DistilGPT2 model loaded successfully!');
@@ -143,7 +183,8 @@ Answer:`;
       available: this.isLoaded,
       loading: this.isLoading,
       model: 'distilgpt2',
-      provider: 'transformers.js'
+      provider: 'transformers.js',
+      transformersAvailable: this.transformersAvailable
     };
   }
 }
