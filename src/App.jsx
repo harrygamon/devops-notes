@@ -18,7 +18,9 @@ function App() {
   const [isQuestionLoading, setIsQuestionLoading] = useState(false)
   const [questionHistory, setQuestionHistory] = useState([])
   const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('devops-dark-mode') === 'true';
+    const savedMode = localStorage.getItem('devops-dark-mode');
+    // Default to dark mode if no preference is saved
+    return savedMode === null ? true : savedMode === 'true';
   });
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('devops-logged-in') === 'true';
@@ -52,7 +54,7 @@ function App() {
   }, [questionHistory])
 
   useEffect(() => {
-    document.body.classList.toggle('dark-mode', darkMode);
+    document.body.classList.toggle('light-mode', !darkMode);
     localStorage.setItem('devops-dark-mode', darkMode);
   }, [darkMode]);
 

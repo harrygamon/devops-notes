@@ -8,13 +8,14 @@
 }
 
 .login-card {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   padding: 40px;
   width: 100%;
   max-width: 400px;
   text-align: center;
+  color: var(--text-primary);
 }
 
 .welcome-text {
@@ -22,7 +23,7 @@
 }
 
 .welcome-text h1 {
-  color: #333;
+  color: var(--text-primary);
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0;
@@ -45,7 +46,7 @@
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #555;
+  color: var(--text-secondary);
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -53,11 +54,13 @@
 .form-group input {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #e1e5e9;
+  border: 2px solid var(--border-color);
   border-radius: 10px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
   box-sizing: border-box;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .form-group input:focus {
@@ -98,50 +101,48 @@
 
 .login-hint p {
   margin: 0;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
 .login-hint strong {
-  color: #667eea;
+  color: var(--accent-color);
   font-weight: 600;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .login-card {
-    background: #1a1a1a;
-    color: white;
-  }
-  
-  .welcome-text h1 {
-    color: white;
-  }
-  
-  .form-group label {
-    color: #ccc;
-  }
-  
-  .form-group input {
-    background: #2a2a2a;
-    border-color: #444;
-    color: white;
-  }
-  
-  .form-group input:focus {
-    border-color: #667eea;
-  }
-  
-  .login-hint {
-    background: rgba(102, 126, 234, 0.2);
-    border-color: rgba(102, 126, 234, 0.3);
-  }
-  
-  .login-hint p {
-    color: #ccc;
-  }
-  
-  .login-hint strong {
-    color: #4dabf7;
-  }
+/* Light mode support */
+.light-mode .login-card {
+  background: white;
+  color: #333;
+}
+
+.light-mode .welcome-text h1 {
+  color: #333;
+}
+
+.light-mode .form-group label {
+  color: #555;
+}
+
+.light-mode .form-group input {
+  background: white;
+  border-color: #e1e5e9;
+  color: #333;
+}
+
+.light-mode .form-group input:focus {
+  border-color: #667eea;
+}
+
+.light-mode .login-hint {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+.light-mode .login-hint p {
+  color: #666;
+}
+
+.light-mode .login-hint strong {
+  color: #667eea;
 } 

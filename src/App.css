@@ -1,21 +1,5 @@
 /* CSS Variables for theming */
 :root {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-tertiary: #e9ecef;
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --accent-color: #007bff;
-  --accent-hover: #0056b3;
-  --border-color: #dee2e6;
-  --success-color: #28a745;
-  --warning-color: #ffc107;
-  --error-color: #dc3545;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.dark-mode {
   --bg-primary: #1a1a1a;
   --bg-secondary: #2d2d2d;
   --bg-tertiary: #404040;
@@ -29,6 +13,22 @@
   --error-color: #ff6b6b;
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.light-mode {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --accent-color: #007bff;
+  --accent-hover: #0056b3;
+  --border-color: #dee2e6;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* Global styles */
