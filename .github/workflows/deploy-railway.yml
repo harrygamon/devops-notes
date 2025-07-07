@@ -1,0 +1,47 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+  RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Deploy to Railway
+        run: |
+          railway login --token $RAILWAY_TOKEN
+          railway link --project $RAILWAY_PROJECT_ID
+          railway up --service devops-notes-web
+
+      - name: Get deployment URL
+        id: url
+        run: |
+          DEPLOY_URL=$(railway status --json | jq -r '.services[0].url')
+          echo "deploy-url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          echo "🚀 Deployed to: $DEPLOY_URL"
+
+      - name: Comment deployment URL
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Deployment successful!**\n\nYour app is now live at: ${{ steps.url.outputs.deploy-url }}\n\nDeployment triggered by: @${{ github.actor }}`
+            }) 
