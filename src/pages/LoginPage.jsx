@@ -30,7 +30,7 @@ const LoginPage = ({ onLogin }) => {
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username: HarryAxford"
+              placeholder="Enter your username"
               required
             />
           </div>
@@ -42,7 +42,7 @@ const LoginPage = ({ onLogin }) => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password: Snowman22090@"
+              placeholder="Enter your password"
               required
             />
           </div>
@@ -52,9 +52,7 @@ const LoginPage = ({ onLogin }) => {
           </button>
         </form>
         
-        <div className="login-hint">
-          <p>Use: <strong>HarryAxford</strong> / <strong>Snowman22090@</strong></p>
-        </div>
+
       </div>
     </div>
   );
