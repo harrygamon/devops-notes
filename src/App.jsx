@@ -4,6 +4,7 @@ import { HashRouter as Router, Route, Routes, Link, Navigate } from 'react-route
 import AIPage from './pages/AIPage'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
+import NewsPage from './components/NewsPage.jsx'
 import apiService from './services/api'
 
 // Error boundary component
@@ -357,6 +358,14 @@ function App() {
                   <div className="feature-content">
                     <h3>Q&A</h3>
                     <p>Ask questions and save answers for future reference</p>
+                    <div className="feature-arrow">→</div>
+                  </div>
+                </div>
+                <div className="feature-card" onClick={() => window.location.hash = '#/news'}>
+                  <div className="feature-icon">📰</div>
+                  <div className="feature-content">
+                    <h3>News</h3>
+                    <p>Stay updated with the latest DevOps trends and tools</p>
                     <div className="feature-arrow">→</div>
                   </div>
                 </div>
@@ -797,6 +806,7 @@ function App() {
               <Link to="/ai" className="nav-link">🤖 AI Assistant</Link>
               <Link to="/review" className="nav-link">🔍 Code Review</Link>
               <Link to="/questions" className="nav-link">❓ Q&A</Link>
+              <Link to="/news" className="nav-link">📰 News</Link>
               <Link to="/admin" className="nav-link">⚙️ Admin</Link>
             </div>
             {isLoggedIn && (
@@ -826,6 +836,9 @@ function App() {
               } />
               <Route path="/questions" element={
                 isLoggedIn ? renderAiQuestionsPage() : <Navigate to="/login" />
+              } />
+              <Route path="/news" element={
+                isLoggedIn ? <NewsPage darkMode={darkMode} setDarkMode={setDarkMode} /> : <Navigate to="/login" />
               } />
               <Route path="/admin" element={
                 isLoggedIn ? <AdminPage darkMode={darkMode} setDarkMode={setDarkMode} /> : <Navigate to="/login" />
