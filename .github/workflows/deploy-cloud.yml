@@ -1,0 +1,56 @@
+name: Deploy to Oracle Cloud
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
+
+      - name: Deploy to Oracle Cloud
+        run: |
+          echo "🚀 Docker image built and pushed to GitHub Container Registry!"
+          echo ""
+          echo "📋 To deploy to Oracle Cloud:"
+          echo "1. SSH to your Oracle Cloud VM:"
+          echo "   ssh ubuntu@YOUR_PUBLIC_IP"
+          echo ""
+          echo "2. Pull and run the latest image:"
+          echo "   cd ~/devops-notes"
+          echo "   docker-compose pull"
+          echo "   docker-compose up -d"
+          echo ""
+          echo "3. Access your app at: http://YOUR_PUBLIC_IP"
+          echo ""
+          echo "🔐 Login with Basic Auth credentials you set up"
+          echo ""
+          echo "📊 Check status with: docker-compose ps"
+          echo "📝 View logs with: docker-compose logs -f"
+
+      - name: Print deployment URL
+        run: |
+          echo "✅ Deployment ready!"
+          echo "Your app image is available at: ghcr.io/${{ github.repository }}:latest"
+          echo "Deploy it on your Oracle Cloud VM using the instructions above." 

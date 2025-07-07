@@ -1,0 +1,144 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Every Monday at 2 AM
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  pull-requests: read
+  packages: read
+
+env:
+  TRIVY_NO_PROGRESS: true
+  TRIVY_SKIP_UPDATE: true
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Debug - List files
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Checking for SARIF file:"
+          if [ -f "trivy-results.sarif" ]; then
+            echo "SARIF file exists and has size: $(wc -c < trivy-results.sarif) bytes"
+          else
+            echo "SARIF file does not exist"
+          fi
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: hashFiles('trivy-results.sarif') != ''
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate || true
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+  container-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Try to pull latest image from registry
+        id: pull-image
+        run: |
+          # Try to pull the latest image from registry
+          if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:latest 2>/dev/null; then
+            echo "image-source=registry" >> $GITHUB_OUTPUT
+            echo "Successfully pulled image from registry"
+          else
+            echo "image-source=local" >> $GITHUB_OUTPUT
+            echo "Registry image not found, will build locally"
+          fi
+
+      - name: Build Docker image locally
+        if: steps.pull-image.outputs.image-source == 'local'
+        run: |
+          docker build --target web -t devops-notes:test .
+          echo "Docker image built successfully:"
+          docker images devops-notes:test
+
+      - name: Run Trivy container scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.pull-image.outputs.image-source == 'registry' && format('{0}/{1}-web:latest', env.REGISTRY, env.IMAGE_NAME) || 'devops-notes:test' }}
+          format: 'sarif'
+          output: 'trivy-container-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Debug - List files after container scan
+        run: |
+          echo "Current directory contents after container scan:"
+          ls -la
+          echo "Checking for container SARIF file:"
+          if [ -f "trivy-container-results.sarif" ]; then
+            echo "Container SARIF file exists and has size: $(wc -c < trivy-container-results.sarif) bytes"
+          else
+            echo "Container SARIF file does not exist"
+          fi
+
+      - name: Upload container scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: hashFiles('trivy-container-results.sarif') != ''
+        with:
+          sarif_file: 'trivy-container-results.sarif'
+
+      - name: Cleanup Docker images
+        if: always()
+        run: |
+          docker rmi devops-notes:test || true
+          docker rmi ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:latest || true
+          docker system prune -f || true 

@@ -1,0 +1,67 @@
+name: Test Security Scan
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  TRIVY_NO_PROGRESS: true
+  TRIVY_SKIP_UPDATE: true
+
+jobs:
+  test-security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Debug - List files
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Checking for SARIF file:"
+          if [ -f "trivy-results.sarif" ]; then
+            echo "SARIF file exists and has size: $(wc -c < trivy-results.sarif) bytes"
+            echo "First few lines of SARIF file:"
+            head -20 trivy-results.sarif
+          else
+            echo "SARIF file does not exist"
+          fi
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: hashFiles('trivy-results.sarif') != ''
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  test-dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate || true 
