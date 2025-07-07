@@ -247,8 +247,6 @@ function App() {
   }
 
   const renderWelcomePage = () => {
-    const navigate = useNavigate();
-    
     return (
       <div className="welcome-page">
         <div className="welcome-content">
@@ -256,22 +254,22 @@ function App() {
           <p>Your personal DevOps assistant and note-taking companion</p>
           
           <div className="feature-grid">
-            <div className="feature-card" onClick={() => navigate('/notes')}>
+            <div className="feature-card" onClick={() => window.location.hash = '#/notes'}>
               <h3>📝 Notes</h3>
               <p>Create and organize your DevOps notes with tags and search</p>
               <div className="feature-arrow">→</div>
             </div>
-            <div className="feature-card" onClick={() => navigate('/ai')}>
+            <div className="feature-card" onClick={() => window.location.hash = '#/ai'}>
               <h3>🤖 AI Assistant</h3>
               <p>Get instant answers to DevOps questions with AI-powered responses</p>
               <div className="feature-arrow">→</div>
             </div>
-            <div className="feature-card" onClick={() => navigate('/review')}>
+            <div className="feature-card" onClick={() => window.location.hash = '#/review'}>
               <h3>🔍 Code Review</h3>
               <p>Review your infrastructure code with AI-powered analysis</p>
               <div className="feature-arrow">→</div>
             </div>
-            <div className="feature-card" onClick={() => navigate('/questions')}>
+            <div className="feature-card" onClick={() => window.location.hash = '#/questions'}>
               <h3>❓ Q&A</h3>
               <p>Ask questions and save answers for future reference</p>
               <div className="feature-arrow">→</div>
