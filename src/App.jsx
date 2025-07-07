@@ -331,49 +331,75 @@ function App() {
 
   const renderAiReviewerPage = () => (
     <div className="ai-reviewer-page">
-      <div className="page-header">
-        <h2>🔍 AI Code Reviewer</h2>
-        <button 
-          className="theme-toggle" 
-          onClick={() => setDarkMode(!darkMode)}
-        >
-          {darkMode ? '☀️' : '🌙'}
-        </button>
-      </div>
-
-      <div className="reviewer-container">
-        <div className="code-input-section">
-          <h3>Code to Review</h3>
-          <textarea
-            placeholder="Paste your DevOps code here (Dockerfile, Terraform, Kubernetes manifests, etc.)..."
-            value={aiCodeReview}
-            onChange={(e) => setAiCodeReview(e.target.value)}
-            className="code-input"
-            rows="15"
-          />
-          <div className="input-actions">
+      <div className="ai-header">
+        <div className="ai-header-content">
+          <h1 className="ai-title">🔍 AI Code Reviewer</h1>
+          <div className="ai-header-actions">
             <button 
-              onClick={getAiCodeReview} 
-              disabled={isLoading || !aiCodeReview.trim()}
-              className="btn-primary"
+              className="theme-toggle" 
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              {isLoading ? '🔍 Reviewing...' : '🔍 Get Code Review'}
+              {darkMode ? '☀️' : '🌙'}
             </button>
-            <button onClick={clearCodeReview} className="btn-secondary">Clear</button>
           </div>
         </div>
+      </div>
 
-        <div className="review-output-section">
-          <h3>AI Review Results</h3>
-          {aiResponse ? (
-            <div className="review-output">
-              <pre>{aiResponse}</pre>
+      <div className="ai-content">
+        <div className="reviewer-container">
+          <div className="code-input-section">
+            <div className="section-header">
+              <h3>📝 Code to Review</h3>
+              <p>Paste your DevOps code for AI-powered analysis and suggestions</p>
             </div>
-          ) : (
-            <div className="empty-state">
-              <p>Paste your code and click "Get Code Review" to see AI-powered feedback</p>
+            <div className="code-input-wrapper">
+              <textarea
+                placeholder="Paste your DevOps code here (Dockerfile, Terraform, Kubernetes manifests, etc.)..."
+                value={aiCodeReview}
+                onChange={(e) => setAiCodeReview(e.target.value)}
+                className="code-input"
+                rows="12"
+              />
+              <div className="input-actions">
+                <button 
+                  onClick={getAiCodeReview} 
+                  disabled={isLoading || !aiCodeReview.trim()}
+                  className="btn-primary"
+                >
+                  {isLoading ? '🔍 Reviewing...' : '🔍 Get Code Review'}
+                </button>
+                <button onClick={clearCodeReview} className="btn-secondary">Clear</button>
+              </div>
             </div>
-          )}
+          </div>
+
+          <div className="review-output-section">
+            <div className="section-header">
+              <h3>🤖 AI Review Results</h3>
+              <p>AI-powered feedback and suggestions for your code</p>
+            </div>
+            {aiResponse ? (
+              <div className="review-output">
+                <div className="output-content">
+                  <pre>{aiResponse}</pre>
+                </div>
+              </div>
+            ) : (
+              <div className="empty-state">
+                <div className="empty-content">
+                  <h4>📋 Ready for Code Review</h4>
+                  <p>Paste your code in the left panel and click "Get Code Review" to receive AI-powered feedback</p>
+                  <div className="empty-features">
+                    <div className="feature">🔍 Security Analysis</div>
+                    <div className="feature">⚡ Performance Tips</div>
+                    <div className="feature">🏗️ Best Practices</div>
+                    <div className="feature">🐛 Bug Detection</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -381,67 +407,91 @@ function App() {
 
   const renderAiQuestionsPage = () => (
     <div className="ai-questions-page">
-      <div className="page-header">
-        <h2>❓ AI Q&A</h2>
-        <button 
-          className="theme-toggle" 
-          onClick={() => setDarkMode(!darkMode)}
-        >
-          {darkMode ? '☀️' : '🌙'}
-        </button>
-      </div>
-
-      <div className="questions-container">
-        <div className="question-input-section">
-          <h3>Ask a DevOps Question</h3>
-          <textarea
-            placeholder="Ask anything about Docker, Kubernetes, CI/CD, monitoring, security, etc..."
-            value={aiQuestion}
-            onChange={(e) => setAiQuestion(e.target.value)}
-            className="question-input"
-            rows="4"
-          />
-          <div className="input-actions">
+      <div className="ai-header">
+        <div className="ai-header-content">
+          <h1 className="ai-title">❓ AI Q&A</h1>
+          <div className="ai-header-actions">
             <button 
-              onClick={getAiQuestionAnswer} 
-              disabled={isQuestionLoading || !aiQuestion.trim()}
-              className="btn-primary"
+              className="theme-toggle" 
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              {isQuestionLoading ? '🤔 Thinking...' : '❓ Ask Question'}
+              {darkMode ? '☀️' : '🌙'}
             </button>
-            <button onClick={clearQuestion} className="btn-secondary">Clear</button>
           </div>
         </div>
+      </div>
 
-        <div className="questions-history">
-          <h3>Question History ({questionHistory.length})</h3>
-          {questionHistory.length === 0 ? (
-            <div className="empty-state">
-              <p>No questions yet. Ask your first DevOps question!</p>
+      <div className="ai-content">
+        <div className="questions-container">
+          <div className="question-input-section">
+            <div className="section-header">
+              <h3>❓ Ask a DevOps Question</h3>
+              <p>Get instant answers to your DevOps questions with AI assistance</p>
             </div>
-          ) : (
-            <div className="questions-list">
-              {questionHistory.map((q) => (
-                <div key={q.id} className="question-card">
-                  <div className="question-header">
-                    <h4>Q: {q.question}</h4>
-                    <button onClick={() => deleteQuestion(q.id)} className="btn-icon">🗑️</button>
-                  </div>
-                  <div className="question-answer">
-                    <p><strong>A:</strong> {q.answer}</p>
-                  </div>
-                  <div className="question-meta">
-                    <span className="question-timestamp">{q.timestamp}</span>
-                    {q.provider && (
-                      <span className={`provider ${q.fallback ? 'fallback' : 'primary'}`}>
-                        {q.fallback ? '🔄 Fallback' : '🤖 AI'}
-                      </span>
-                    )}
+            <div className="question-input-wrapper">
+              <textarea
+                placeholder="Ask anything about Docker, Kubernetes, CI/CD, monitoring, security, etc..."
+                value={aiQuestion}
+                onChange={(e) => setAiQuestion(e.target.value)}
+                className="question-input"
+                rows="4"
+              />
+              <div className="input-actions">
+                <button 
+                  onClick={getAiQuestionAnswer} 
+                  disabled={isQuestionLoading || !aiQuestion.trim()}
+                  className="btn-primary"
+                >
+                  {isQuestionLoading ? '🤔 Thinking...' : '❓ Ask Question'}
+                </button>
+                <button onClick={clearQuestion} className="btn-secondary">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="questions-history">
+            <div className="section-header">
+              <h3>📚 Question History ({questionHistory.length})</h3>
+              <p>Your previous questions and AI responses</p>
+            </div>
+            {questionHistory.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-content">
+                  <h4>💭 Ready to Ask Questions</h4>
+                  <p>Ask your first DevOps question above to get started</p>
+                  <div className="empty-features">
+                    <div className="feature">🐳 Docker & Containers</div>
+                    <div className="feature">☸️ Kubernetes</div>
+                    <div className="feature">🚀 CI/CD Pipelines</div>
+                    <div className="feature">🔒 Security</div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="questions-list">
+                {questionHistory.map((q) => (
+                  <div key={q.id} className="question-card">
+                    <div className="question-header">
+                      <h4>Q: {q.question}</h4>
+                      <button onClick={() => deleteQuestion(q.id)} className="btn-icon" title="Delete question">🗑️</button>
+                    </div>
+                    <div className="question-answer">
+                      <p><strong>A:</strong> {q.answer}</p>
+                    </div>
+                    <div className="question-meta">
+                      <span className="question-timestamp">{q.timestamp}</span>
+                      {q.provider && (
+                        <span className={`provider ${q.fallback ? 'fallback' : 'primary'}`}>
+                          {q.fallback ? '🔄 Fallback' : '🤖 AI'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

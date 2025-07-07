@@ -1,44 +1,60 @@
 .ai-page {
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg-primary);
+}
+
+.ai-header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.ai-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.ai-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--border-color);
-}
-
 .ai-title {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: var(--text-primary);
   margin: 0;
-  text-align: center;
-  flex: 1;
+}
+
+.ai-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .theme-toggle {
-  background: var(--bg-secondary);
-  border: 2px solid var(--border-color);
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 1.5rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.5rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 1.1rem;
 }
 
 .theme-toggle:hover {
   background: var(--accent-color);
-  transform: scale(1.1);
+  color: white;
+  transform: scale(1.05);
+}
+
+.ai-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Dark mode styles */
@@ -62,23 +78,22 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .ai-page {
+  .ai-header {
     padding: 1rem;
   }
   
-  .ai-header {
+  .ai-header-content {
     flex-direction: column;
     gap: 1rem;
-    text-align: center;
+    align-items: flex-start;
+  }
+  
+  .ai-header-actions {
+    width: 100%;
+    justify-content: space-between;
   }
   
   .ai-title {
-    font-size: 2rem;
-  }
-  
-  .theme-toggle {
-    width: 45px;
-    height: 45px;
     font-size: 1.3rem;
   }
 } 

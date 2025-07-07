@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import apiService from '../services/api';
 import './Chatbot.css';
 
@@ -6,6 +6,15 @@ const Chatbot = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -56,69 +65,130 @@ const Chatbot = () => {
     return 'AI Response';
   };
 
+  const clearChat = () => {
+    setMessages([]);
+  };
+
   return (
     <div className="chatbot">
-      <div className="chat-header">
-        <h2>💬 Chat with AI Assistant</h2>
-        <p>Ask me anything about DevOps, Docker, Kubernetes, CI/CD, and more!</p>
-      </div>
-      
-      <div className="chat-window">
-        {messages.length === 0 && (
-          <div className="welcome-message">
-            <p>👋 Hello! I'm your DevOps AI assistant. I can help you with:</p>
-            <ul>
-              <li>🚀 CI/CD pipeline questions</li>
-              <li>🐳 Docker and containerization</li>
-              <li>☸️ Kubernetes and orchestration</li>
-              <li>🏗️ Infrastructure as Code (Terraform, CloudFormation)</li>
-              <li>🔒 Security best practices</li>
-              <li>📊 Monitoring and observability</li>
-            </ul>
-            <p>Just ask me anything!</p>
-          </div>
-        )}
-        
-        {messages.map((message, index) => (
-          <div key={index} className={`message ${message.role}`}>
-            <div className="message-content">
-              {message.content}
-            </div>
-            {message.provider && (
-              <div className="message-meta">
-                <span className={`provider ${message.fallback ? 'fallback' : 'primary'}`}>
-                  {getProviderIcon(message.provider, message.fallback)} {getProviderText(message.provider, message.model, message.fallback)}
-                </span>
+      <div className="chat-container">
+        <div className="chat-messages">
+          {messages.length === 0 && (
+            <div className="welcome-message">
+              <div className="welcome-content">
+                <h2>🤖 DevOps AI Assistant</h2>
+                <p>Hello! I'm here to help you with all things DevOps. I can assist with:</p>
+                <div className="capabilities-grid">
+                  <div className="capability">
+                    <span className="capability-icon">🚀</span>
+                    <span>CI/CD Pipelines</span>
+                  </div>
+                  <div className="capability">
+                    <span className="capability-icon">🐳</span>
+                    <span>Docker & Containers</span>
+                  </div>
+                  <div className="capability">
+                    <span className="capability-icon">☸️</span>
+                    <span>Kubernetes</span>
+                  </div>
+                  <div className="capability">
+                    <span className="capability-icon">🏗️</span>
+                    <span>Infrastructure as Code</span>
+                  </div>
+                  <div className="capability">
+                    <span className="capability-icon">🔒</span>
+                    <span>Security Best Practices</span>
+                  </div>
+                  <div className="capability">
+                    <span className="capability-icon">📊</span>
+                    <span>Monitoring & Observability</span>
+                  </div>
+                </div>
+                <p>Just ask me anything!</p>
               </div>
-            )}
-          </div>
-        ))}
+            </div>
+          )}
+          
+          {messages.map((message, index) => (
+            <div key={index} className={`message-wrapper ${message.role}`}>
+              <div className="message-container">
+                <div className="message-avatar">
+                  {message.role === 'user' ? '👤' : '🤖'}
+                </div>
+                <div className="message-content">
+                  <div className="message-text">
+                    {message.content}
+                  </div>
+                  {message.provider && (
+                    <div className="message-meta">
+                      <span className={`provider ${message.fallback ? 'fallback' : 'primary'}`}>
+                        {getProviderIcon(message.provider, message.fallback)} {getProviderText(message.provider, message.model, message.fallback)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {loading && (
+            <div className="message-wrapper assistant">
+              <div className="message-container">
+                <div className="message-avatar">🤖</div>
+                <div className="message-content">
+                  <div className="loading-indicator">
+                    <div className="typing-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
         
-        {loading && (
-          <div className="message assistant">
-            <div className="loading-indicator">
-              <span>🤔 Thinking...</span>
+        <div className="chat-input-container">
+          <div className="chat-input-wrapper">
+            <div className="input-actions">
+              {messages.length > 0 && (
+                <button onClick={clearChat} className="clear-chat-btn" title="Clear chat">
+                  🗑️ Clear
+                </button>
+              )}
+            </div>
+            <div className="input-area">
+              <textarea
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask a DevOps question..."
+                rows="1"
+                disabled={loading}
+                className="chat-input"
+              />
+              <button 
+                onClick={sendMessage} 
+                disabled={loading || !inputMessage.trim()}
+                className={`send-button ${loading ? 'loading' : ''}`}
+                title="Send message"
+              >
+                {loading ? (
+                  <div className="send-loading">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                ) : (
+                  '📤'
+                )}
+              </button>
             </div>
           </div>
-        )}
-      </div>
-      
-      <div className="input-area">
-        <textarea
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Ask a DevOps question..."
-          rows="2"
-          disabled={loading}
-        />
-        <button 
-          onClick={sendMessage} 
-          disabled={loading || !inputMessage.trim()}
-          className={loading ? 'loading' : ''}
-        >
-          {loading ? '⏳' : '📤'}
-        </button>
+        </div>
       </div>
     </div>
   );
