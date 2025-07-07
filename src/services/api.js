@@ -24,6 +24,7 @@ class APIService {
       }
     } catch (error) {
       console.error('❌ Failed to initialize DistilGPT2:', error);
+      console.log('🔄 Falling back to intelligent responses...');
     }
   }
 

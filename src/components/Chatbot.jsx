@@ -6,6 +6,7 @@ const Chatbot = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [aiStatus, setAiStatus] = useState('initializing');
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -15,6 +16,25 @@ const Chatbot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Check AI status on component mount
+  useEffect(() => {
+    const checkAiStatus = async () => {
+      try {
+        const status = await apiService.getDistilGPT2Status();
+        if (status.available) {
+          setAiStatus('available');
+        } else {
+          setAiStatus('fallback');
+        }
+      } catch (error) {
+        console.error('Error checking AI status:', error);
+        setAiStatus('fallback');
+      }
+    };
+    
+    checkAiStatus();
+  }, []);
 
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -79,6 +99,23 @@ const Chatbot = () => {
             <div className="welcome-message">
               <div className="welcome-content">
                 <h2>🤖 DevOps AI Assistant</h2>
+                <div className="ai-status">
+                  {aiStatus === 'initializing' && (
+                    <div className="status-indicator initializing">
+                      🔄 Initializing AI...
+                    </div>
+                  )}
+                  {aiStatus === 'available' && (
+                    <div className="status-indicator available">
+                      ✅ AI Available (DistilGPT2)
+                    </div>
+                  )}
+                  {aiStatus === 'fallback' && (
+                    <div className="status-indicator fallback">
+                      🔄 Using Intelligent Responses
+                    </div>
+                  )}
+                </div>
                 <p>Hello! I'm here to help you with all things DevOps. I can assist with:</p>
                 <div className="capabilities-grid">
                   <div className="capability">
