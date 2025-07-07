@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
-import { HashRouter as Router, Route, Routes, Link, useNavigate, Navigate } from 'react-router-dom'
+import { HashRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom'
 import AIPage from './pages/AIPage'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
