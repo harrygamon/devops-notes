@@ -3,6 +3,7 @@ import './App.css'
 import { HashRouter as Router, Route, Routes, Link, useNavigate, Navigate } from 'react-router-dom'
 import AIPage from './pages/AIPage'
 import LoginPage from './pages/LoginPage'
+import AdminPage from './pages/AdminPage'
 import apiService from './services/api'
 
 function App() {
@@ -510,6 +511,7 @@ function App() {
             <Link to="/ai" className="nav-link">🤖 AI Assistant</Link>
             <Link to="/review" className="nav-link">🔍 Code Review</Link>
             <Link to="/questions" className="nav-link">❓ Q&A</Link>
+            <Link to="/admin" className="nav-link">⚙️ Admin</Link>
           </div>
           {isLoggedIn && (
             <div className="nav-user">
@@ -538,6 +540,9 @@ function App() {
             } />
             <Route path="/questions" element={
               isLoggedIn ? renderAiQuestionsPage() : <Navigate to="/login" />
+            } />
+            <Route path="/admin" element={
+              isLoggedIn ? <AdminPage darkMode={darkMode} setDarkMode={setDarkMode} /> : <Navigate to="/login" />
             } />
           </Routes>
         </main>
