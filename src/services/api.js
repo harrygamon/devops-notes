@@ -1,36 +1,38 @@
 // Client-side API service with Ollama support and fallback responses
 class APIService {
   constructor() {
-    this.baseURL = process.env.NODE_ENV === 'production' 
-      ? 'https://your-backend-url.com' // Replace with your actual backend URL
-      : 'http://localhost:3001';
+    // For GitHub Pages deployment, we don't have a backend server
+    // So we'll only use Ollama and fallback responses
+    this.baseURL = null;
     this.isBackendAvailable = false;
-    this.checkBackendAvailability();
     this.ollamaURL = 'http://localhost:11434';
     this.isOllamaAvailable = false;
     this.model = 'qwen2.5:3b'; // Qwen3 model
     this.checkOllamaAvailability();
   }
 
-  async checkBackendAvailability() {
-    try {
-      const response = await fetch(`${this.baseURL}/health`, {
-        method: 'GET',
-        timeout: 3000
-      });
-      this.isBackendAvailable = response.ok;
-    } catch (error) {
-      this.isBackendAvailable = false;
-      console.log('Backend not available, using fallback responses');
-    }
-  }
+  // Backend is not available in GitHub Pages deployment
+  // We only use Ollama and fallback responses
 
   async checkOllamaAvailability() {
     try {
-      const response = await fetch(`${this.ollamaURL}/api/tags`, {
-        method: 'GET',
-        timeout: 3000
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 3000);
       });
+
+      // Create the fetch promise
+      const fetchPromise = fetch(`${this.ollamaURL}/api/tags`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      // Race between fetch and timeout
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
+      
       if (response.ok) {
         const data = await response.json();
         this.isOllamaAvailable = data.models && data.models.length > 0;
@@ -62,6 +64,9 @@ class APIService {
             console.log('Qwen model not found. Available models:', data.models.map(m => m.name));
           }
         }
+      } else {
+        console.log('Ollama API returned error:', response.status, response.statusText);
+        this.isOllamaAvailable = false;
       }
     } catch (error) {
       this.isOllamaAvailable = false;
@@ -178,7 +183,24 @@ Please provide a comprehensive review with actionable recommendations.`;
   async getOllamaStatus() {
     try {
       console.log('Checking Ollama status at:', this.ollamaURL);
-      const response = await fetch(`${this.ollamaURL}/api/tags`);
+      
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 3000);
+      });
+
+      // Create the fetch promise
+      const fetchPromise = fetch(`${this.ollamaURL}/api/tags`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      // Race between fetch and timeout
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
+      
       if (response.ok) {
         const data = await response.json();
         console.log('Ollama status response:', data);

@@ -119,7 +119,7 @@ const OllamaStatus = () => {
             </div>
             
             {status.error && (
-              <div className="error-info">
+              <div className="error-info">curl http://localhost:11434/api/tags
                 <p><strong>Error:</strong> {status.error}</p>
               </div>
             )}
@@ -179,7 +179,10 @@ ollama list`}
       
       <div className="status-footer">
         <p>
-          <strong>Note:</strong> The app will use fallback responses when Ollama is not available.
+          <strong>Note:</strong> This is a GitHub Pages deployment. The app will use fallback responses when Ollama is not available.
+        </p>
+        <p>
+          <strong>Local Development:</strong> For full AI features, run the app locally with <code>npm run dev</code>
         </p>
       </div>
     </div>
