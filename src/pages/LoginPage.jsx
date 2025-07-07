@@ -7,9 +7,11 @@ const LoginPage = ({ onLogin }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simple login logic - you can enhance this later
-    if (username && password) {
+    // Validate specific credentials
+    if (username === 'HarryAxford' && password === 'Snowman22090@') {
       onLogin({ username });
+    } else {
+      alert('Invalid username or password. Please use HarryAxford / Snowman22090@');
     }
   };
 
@@ -28,7 +30,7 @@ const LoginPage = ({ onLogin }) => {
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              placeholder="Username: HarryAxford"
               required
             />
           </div>
@@ -40,7 +42,7 @@ const LoginPage = ({ onLogin }) => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Password: Snowman22090@"
               required
             />
           </div>
@@ -49,6 +51,10 @@ const LoginPage = ({ onLogin }) => {
             Login
           </button>
         </form>
+        
+        <div className="login-hint">
+          <p>Use: <strong>HarryAxford</strong> / <strong>Snowman22090@</strong></p>
+        </div>
       </div>
     </div>
   );

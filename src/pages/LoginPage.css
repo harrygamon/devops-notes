@@ -88,6 +88,25 @@
   transform: translateY(0);
 }
 
+.login-hint {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.login-hint p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.login-hint strong {
+  color: #667eea;
+  font-weight: 600;
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .login-card {
@@ -111,5 +130,18 @@
   
   .form-group input:focus {
     border-color: #667eea;
+  }
+  
+  .login-hint {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.3);
+  }
+  
+  .login-hint p {
+    color: #ccc;
+  }
+  
+  .login-hint strong {
+    color: #4dabf7;
   }
 } 
