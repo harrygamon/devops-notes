@@ -8,6 +8,10 @@ class DistilGPT2Service {
     this.transformersAvailable = false;
     this.pipeline = null;
     this.useLightweightAI = true; // Use lightweight AI by default
+    this.backgroundLoading = false;
+    this.loadingProgress = 0;
+    this.estimatedTime = 0;
+    this.startTime = null;
   }
 
   async initializeTransformers() {
@@ -57,12 +61,96 @@ class DistilGPT2Service {
       return this.loadPromise;
     }
 
-    // Use lightweight AI instead of heavy models
+    // Start with lightweight AI immediately
     console.log('🤖 Using lightweight AI service...');
     this.isLoaded = true;
     this.isLoading = false;
     this.useLightweightAI = true;
+
+    // Start background loading of DistilGPT2
+    this.startBackgroundLoading();
+    
     return true;
+  }
+
+  async startBackgroundLoading() {
+    if (this.backgroundLoading) {
+      return;
+    }
+
+    this.backgroundLoading = true;
+    this.loadingProgress = 0;
+    this.startTime = Date.now();
+    console.log('🚀 Starting background DistilGPT2 installation...');
+
+    try {
+      // Step 1: Initialize transformers.js (10% of progress)
+      this.loadingProgress = 5;
+      const transformersReady = await this.initializeTransformers();
+      if (!transformersReady) {
+        console.log('⚠️ Transformers.js not available, staying with lightweight AI');
+        this.backgroundLoading = false;
+        return;
+      }
+      this.loadingProgress = 10;
+
+      // Step 2: Load DistilGPT2 model (80% of progress)
+      console.log('📦 Loading DistilGPT2 model in background...');
+      this.loadingProgress = 15;
+      
+      const modelPromise = this.pipeline('text-generation', 'distilgpt2', {
+        quantized: true,
+        progress_callback: (progress) => {
+          // Map model loading progress from 0-1 to 15-90%
+          this.loadingProgress = 15 + (progress * 75);
+          this.updateEstimatedTime();
+          console.log(`📦 Background loading progress: ${Math.round(this.loadingProgress)}%`);
+        }
+      });
+
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Background model loading timeout after 2 minutes')), 120000)
+      );
+
+      this.model = await Promise.race([modelPromise, timeoutPromise]);
+      
+      // Step 3: Finalize (10% of progress)
+      this.loadingProgress = 95;
+      await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for UX
+      this.loadingProgress = 100;
+      
+      this.isLoaded = true;
+      this.useLightweightAI = false;
+      this.backgroundLoading = false;
+      console.log('✅ DistilGPT2 loaded successfully in background!');
+      
+      // Notify any listeners that the model is ready
+      this.notifyModelReady();
+      
+    } catch (error) {
+      console.error('❌ Background DistilGPT2 loading failed:', error);
+      this.backgroundLoading = false;
+      this.loadingProgress = 0;
+      // Stay with lightweight AI
+    }
+  }
+
+  updateEstimatedTime() {
+    if (this.startTime && this.loadingProgress > 10) {
+      const elapsed = (Date.now() - this.startTime) / 1000;
+      const progressDecimal = this.loadingProgress / 100;
+      const totalEstimated = elapsed / progressDecimal;
+      this.estimatedTime = Math.round(totalEstimated - elapsed);
+    }
+  }
+
+  notifyModelReady() {
+    // Dispatch a custom event to notify the UI
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('distilgpt2-ready', {
+        detail: { model: 'distilgpt2', provider: 'transformers.js' }
+      }));
+    }
   }
 
   async generateResponse(prompt, maxLength = 100) {
@@ -74,16 +162,45 @@ class DistilGPT2Service {
     }
 
     try {
-      console.log('🤖 Generating lightweight AI response for:', prompt);
-      
-      // Use lightweight AI response generation
-      const response = this.generateLightweightResponse(prompt);
-      
-      console.log('✅ Generated lightweight response:', response);
-      return response;
+      // Use DistilGPT2 if available, otherwise use lightweight AI
+      if (this.model && !this.useLightweightAI) {
+        console.log('🤖 Generating DistilGPT2 response for:', prompt);
+        
+        const result = await this.model(prompt, {
+          max_length: maxLength,
+          temperature: 0.7,
+          top_p: 0.9,
+          do_sample: true,
+          pad_token_id: this.model.tokenizer.eos_token_id,
+          eos_token_id: this.model.tokenizer.eos_token_id,
+        });
+
+        let response = result[0].generated_text;
+        
+        // Remove the original prompt from the response
+        if (response.startsWith(prompt)) {
+          response = response.substring(prompt.length);
+        }
+        
+        // Clean up the response
+        response = response.trim();
+        
+        console.log('✅ Generated DistilGPT2 response:', response);
+        return response;
+      } else {
+        console.log('🤖 Generating lightweight AI response for:', prompt);
+        
+        // Use lightweight AI response generation
+        const response = this.generateLightweightResponse(prompt);
+        
+        console.log('✅ Generated lightweight response:', response);
+        return response;
+      }
     } catch (error) {
       console.error('❌ Error generating response:', error);
-      throw error;
+      // Fallback to lightweight AI
+      console.log('🔄 Falling back to lightweight AI...');
+      return this.generateLightweightResponse(prompt);
     }
   }
 
@@ -124,8 +241,8 @@ class DistilGPT2Service {
       
       return {
         response: response,
-        provider: 'lightweight-ai',
-        model: 'lightweight-ai',
+        provider: this.useLightweightAI ? 'lightweight-ai' : 'distilgpt2',
+        model: this.useLightweightAI ? 'lightweight-ai' : 'distilgpt2',
         fallback: false
       };
     } catch (error) {
@@ -155,9 +272,12 @@ Answer:`;
     return {
       available: this.isLoaded,
       loading: this.isLoading,
-      model: 'lightweight-ai',
-      provider: 'lightweight-ai',
+      model: this.useLightweightAI ? 'lightweight-ai' : 'distilgpt2',
+      provider: this.useLightweightAI ? 'lightweight-ai' : 'distilgpt2',
       transformersAvailable: this.transformersAvailable,
+      backgroundLoading: this.backgroundLoading,
+      loadingProgress: this.loadingProgress,
+      estimatedTime: this.estimatedTime,
       retryCount: 0
     };
   }

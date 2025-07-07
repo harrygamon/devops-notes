@@ -106,6 +106,39 @@
   color: white;
 }
 
+.status-indicator.loading {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem;
+  min-width: 300px;
+}
+
+.loading-text {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.estimated-time {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
 @keyframes pulse {
   0% { opacity: 1; }
   50% { opacity: 0.7; }

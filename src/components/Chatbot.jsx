@@ -7,6 +7,8 @@ const Chatbot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [aiStatus, setAiStatus] = useState('initializing');
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [estimatedTime, setEstimatedTime] = useState(0);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -17,12 +19,14 @@ const Chatbot = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Check AI status on component mount
+  // Check AI status on component mount and listen for updates
   useEffect(() => {
     const checkAiStatus = async () => {
       try {
         const status = await apiService.getDistilGPT2Status();
-        if (status.available) {
+        if (status.backgroundLoading) {
+          setAiStatus('loading');
+        } else if (status.available) {
           setAiStatus('available');
         } else {
           setAiStatus('fallback');
@@ -34,6 +38,36 @@ const Chatbot = () => {
     };
     
     checkAiStatus();
+
+    // Listen for DistilGPT2 ready event
+    const handleModelReady = () => {
+      setAiStatus('available');
+    };
+
+    // Poll for status updates during background loading
+    const statusInterval = setInterval(async () => {
+      try {
+        const status = await apiService.getDistilGPT2Status();
+        if (status.backgroundLoading) {
+          setAiStatus('loading');
+          setLoadingProgress(status.loadingProgress || 0);
+          setEstimatedTime(status.estimatedTime || 0);
+        } else if (status.available && !status.useLightweightAI) {
+          setAiStatus('available');
+          setLoadingProgress(100);
+          clearInterval(statusInterval);
+        }
+      } catch (error) {
+        console.error('Error polling AI status:', error);
+      }
+    }, 2000); // Check every 2 seconds
+
+    window.addEventListener('distilgpt2-ready', handleModelReady);
+    
+    return () => {
+      clearInterval(statusInterval);
+      window.removeEventListener('distilgpt2-ready', handleModelReady);
+    };
   }, []);
 
   const sendMessage = async () => {
@@ -103,6 +137,24 @@ const Chatbot = () => {
                   {aiStatus === 'initializing' && (
                     <div className="status-indicator initializing">
                       🔄 Initializing AI...
+                    </div>
+                  )}
+                  {aiStatus === 'loading' && (
+                    <div className="status-indicator loading">
+                      <div className="loading-text">
+                        📦 Installing DistilGPT2... {loadingProgress}%
+                      </div>
+                      <div className="progress-bar">
+                        <div 
+                          className="progress-fill" 
+                          style={{ width: `${loadingProgress}%` }}
+                        ></div>
+                      </div>
+                      {estimatedTime > 0 && (
+                        <div className="estimated-time">
+                          ⏱️ ~{estimatedTime}s remaining
+                        </div>
+                      )}
                     </div>
                   )}
                   {aiStatus === 'available' && (
