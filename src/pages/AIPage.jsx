@@ -1,9 +1,18 @@
 import Chatbot from '../components/Chatbot';
+import './AIPage.css';
 
-const AIPage = () => {
+const AIPage = ({ darkMode, setDarkMode }) => {
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>AI Assistant</h1>
+    <div className="ai-page">
+      <div className="ai-header">
+        <h1 className="ai-title">🤖 AI DevOps Assistant</h1>
+        <button 
+          className="theme-toggle" 
+          onClick={() => setDarkMode(!darkMode)}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
+      </div>
       <Chatbot />
     </div>
   );

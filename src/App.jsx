@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom'
+import { HashRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom'
 import AIPage from './pages/AIPage'
 import apiService from './services/api'
 
@@ -178,44 +178,52 @@ function App() {
     setQuestionHistory(questionHistory.filter(q => q.id !== id))
   }
 
-  const renderWelcomePage = () => (
-    <div className="welcome-page">
-      <div className="welcome-content">
-        <h1>🚀 DevOps Notes</h1>
-        <p>Your personal DevOps assistant and note-taking companion</p>
-        
-        <div className="feature-grid">
-          <div className="feature-card">
-            <h3>📝 Notes</h3>
-            <p>Create and organize your DevOps notes with tags and search</p>
+  const renderWelcomePage = () => {
+    const navigate = useNavigate();
+    
+    return (
+      <div className="welcome-page">
+        <div className="welcome-content">
+          <h1>🚀 DevOps Notes</h1>
+          <p>Your personal DevOps assistant and note-taking companion</p>
+          
+          <div className="feature-grid">
+            <div className="feature-card" onClick={() => navigate('/notes')}>
+              <h3>📝 Notes</h3>
+              <p>Create and organize your DevOps notes with tags and search</p>
+              <div className="feature-arrow">→</div>
+            </div>
+            <div className="feature-card" onClick={() => navigate('/ai')}>
+              <h3>🤖 AI Assistant</h3>
+              <p>Get instant answers to DevOps questions with AI-powered responses</p>
+              <div className="feature-arrow">→</div>
+            </div>
+            <div className="feature-card" onClick={() => navigate('/review')}>
+              <h3>🔍 Code Review</h3>
+              <p>Review your infrastructure code with AI-powered analysis</p>
+              <div className="feature-arrow">→</div>
+            </div>
+            <div className="feature-card" onClick={() => navigate('/questions')}>
+              <h3>❓ Q&A</h3>
+              <p>Ask questions and save answers for future reference</p>
+              <div className="feature-arrow">→</div>
+            </div>
           </div>
-          <div className="feature-card">
-            <h3>🤖 AI Assistant</h3>
-            <p>Get instant answers to DevOps questions with AI-powered responses</p>
-          </div>
-          <div className="feature-card">
-            <h3>🔍 Code Review</h3>
-            <p>Review your infrastructure code with AI-powered analysis</p>
-          </div>
-          <div className="feature-card">
-            <h3>❓ Q&A</h3>
-            <p>Ask questions and save answers for future reference</p>
-          </div>
-        </div>
-        
-        <div className="quick-stats">
-          <div className="stat">
-            <span className="stat-number">{notes.length}</span>
-            <span className="stat-label">Notes</span>
-          </div>
-          <div className="stat">
-            <span className="stat-number">{questionHistory.length}</span>
-            <span className="stat-label">Questions</span>
+          
+          <div className="quick-stats">
+            <div className="stat">
+              <span className="stat-number">{notes.length}</span>
+              <span className="stat-label">Notes</span>
+            </div>
+            <div className="stat">
+              <span className="stat-number">{questionHistory.length}</span>
+              <span className="stat-label">Questions</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderNotesPage = () => (
     <div className="notes-page">
@@ -437,7 +445,7 @@ function App() {
           <Routes>
             <Route path="/" element={renderWelcomePage()} />
             <Route path="/notes" element={renderNotesPage()} />
-            <Route path="/ai" element={<AIPage />} />
+            <Route path="/ai" element={<AIPage darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/review" element={renderAiReviewerPage()} />
             <Route path="/questions" element={renderAiQuestionsPage()} />
           </Routes>
