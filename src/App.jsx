@@ -407,41 +407,6 @@ function App() {
 
       <div className="notes-container">
         <div className="notes-sidebar">
-          <div className="note-form">
-            <div className="note-form-header">
-              <h3>{selectedNote ? 'Edit Note' : 'New Note'}</h3>
-            </div>
-            <input
-              type="text"
-              placeholder="Note title..."
-              value={noteTitle}
-              onChange={(e) => setNoteTitle(e.target.value)}
-              className="note-title-input"
-            />
-            <textarea
-              placeholder="Write your DevOps notes here... Use #tags for organization"
-              value={currentNote}
-              onChange={(e) => setCurrentNote(e.target.value)}
-              className="note-content-input"
-              rows="6"
-            />
-            <div className="note-actions">
-              {selectedNote ? (
-                <>
-                  <button onClick={updateNote} className="btn-primary">Update Note</button>
-                  <button onClick={clearForm} className="btn-secondary">Cancel</button>
-                </>
-              ) : (
-                <>
-                  <button onClick={saveNote} className="btn-primary">Save Note</button>
-                  <button onClick={clearForm} className="btn-secondary">Clear</button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="notes-list">
           <div className="notes-list-header">
             <h3>Your Notes ({notes.length})</h3>
           </div>
@@ -468,7 +433,7 @@ function App() {
                       </button>
                     </div>
                   </div>
-                  <p className="note-content">{note.content.substring(0, 120)}...</p>
+                  <p className="note-content">{note.content.substring(0, 80)}...</p>
                   <div className="note-meta">
                     <span className="note-timestamp">{note.timestamp}</span>
                     {note.tags.length > 0 && (
@@ -483,6 +448,41 @@ function App() {
               ))}
             </div>
           )}
+        </div>
+
+        <div className="notes-main">
+          <div className="note-form">
+            <div className="note-form-header">
+              <h3>{selectedNote ? 'Edit Note' : 'New Note'}</h3>
+            </div>
+            <input
+              type="text"
+              placeholder="Note title..."
+              value={noteTitle}
+              onChange={(e) => setNoteTitle(e.target.value)}
+              className="note-title-input"
+            />
+            <textarea
+              placeholder="Write your DevOps notes here... Use #tags for organization"
+              value={currentNote}
+              onChange={(e) => setCurrentNote(e.target.value)}
+              className="note-content-input"
+              rows="20"
+            />
+            <div className="note-actions">
+              {selectedNote ? (
+                <>
+                  <button onClick={updateNote} className="btn-primary">Update Note</button>
+                  <button onClick={clearForm} className="btn-secondary">Cancel</button>
+                </>
+              ) : (
+                <>
+                  <button onClick={saveNote} className="btn-primary">Save Note</button>
+                  <button onClick={clearForm} className="btn-secondary">Clear</button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

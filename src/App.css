@@ -466,10 +466,18 @@ body {
 }
 
 .notes-sidebar {
-  flex: 0 0 350px;
+  flex: 0 0 300px;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.notes-main {
+  flex: 1;
+  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
 }
@@ -477,50 +485,51 @@ body {
 .note-form {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  padding: 2rem;
+  height: 100%;
+  background: var(--bg-primary);
 }
 
 .note-form-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .note-form-header h3 {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   color: var(--text-primary);
   margin: 0;
+  font-weight: 600;
 }
 
 .note-title-input {
-  padding: 0.75rem;
-  border: none;
-  border-bottom: 2px solid var(--border-color);
-  border-radius: 0;
-  font-size: 1.1rem;
-  background: transparent;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1.2rem;
+  background: var(--bg-secondary);
   color: var(--text-primary);
   transition: border-color 0.3s ease;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .note-title-input:focus {
   outline: none;
-  border-bottom-color: var(--accent-color);
+  border-color: var(--accent-color);
 }
 
 .note-content-input {
-  padding: 0.75rem;
-  border: none;
-  border-radius: 0;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
   font-size: 1rem;
-  background: transparent;
+  background: var(--bg-secondary);
   color: var(--text-primary);
   resize: none;
-  min-height: 150px;
+  flex: 1;
+  min-height: 400px;
   font-family: inherit;
   transition: all 0.3s ease;
   line-height: 1.6;
@@ -528,22 +537,21 @@ body {
 
 .note-content-input:focus {
   outline: none;
+  border-color: var(--accent-color);
   background: var(--bg-primary);
-  border-radius: 8px;
-  padding: 1rem;
 }
 
 .note-actions {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .btn-primary, .btn-secondary {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -556,7 +564,7 @@ body {
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .btn-primary:disabled {
@@ -574,25 +582,16 @@ body {
   background: var(--border-color);
 }
 
-.notes-list {
-  flex: 1;
-  background: var(--bg-primary);
-  padding: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
 .notes-list-header {
   padding: 1.5rem;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-secondary);
 }
 
-.notes-list h3 {
+.notes-list-header h3 {
   margin: 0;
   color: var(--text-primary);
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
 }
 
@@ -608,7 +607,7 @@ body {
   border: none;
   border-bottom: 1px solid var(--border-color);
   border-radius: 0;
-  padding: 1.5rem;
+  padding: 1rem;
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -628,11 +627,11 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .note-header h4 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text-primary);
   margin: 0;
   flex: 1;
@@ -641,20 +640,20 @@ body {
 
 .note-content {
   color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .note-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
 .note-timestamp {
@@ -663,16 +662,16 @@ body {
 
 .note-tags {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.25rem;
   flex-wrap: wrap;
 }
 
 .tag {
   background: var(--accent-color);
   color: white;
-  padding: 0.2rem 0.5rem;
-  border-radius: 10px;
-  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
   font-weight: 500;
 }
 
