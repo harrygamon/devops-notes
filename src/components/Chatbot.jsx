@@ -55,12 +55,14 @@ const Chatbot = () => {
 
   const getProviderIcon = (provider, fallback) => {
     if (fallback) return '🔄';
+    if (provider === 'distilgpt2') return '🤖';
     if (provider === 'ollama') return '🤖';
     return '💬';
   };
 
   const getProviderText = (provider, model, fallback) => {
     if (fallback) return 'Fallback Response';
+    if (provider === 'distilgpt2') return `DistilGPT2 (In-browser AI)`;
     if (provider === 'ollama') return `Ollama (${model || 'Qwen3'})`;
     return 'AI Response';
   };

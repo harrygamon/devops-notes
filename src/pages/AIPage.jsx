@@ -1,5 +1,5 @@
 import Chatbot from '../components/Chatbot';
-import OllamaStatus from '../components/OllamaStatus';
+import DistilGPT2Status from '../components/OllamaStatus';
 import './AIPage.css';
 
 const AIPage = ({ darkMode, setDarkMode }) => {
@@ -9,7 +9,7 @@ const AIPage = ({ darkMode, setDarkMode }) => {
         <div className="ai-header-content">
           <h1 className="ai-title">🤖 AI DevOps Assistant</h1>
           <div className="ai-header-actions">
-            <OllamaStatus />
+            <DistilGPT2Status />
             <button 
               className="theme-toggle" 
               onClick={() => setDarkMode(!darkMode)}

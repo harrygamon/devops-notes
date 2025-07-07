@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import apiService from '../services/api';
 import './OllamaStatus.css';
 
-const OllamaStatus = () => {
+const DistilGPT2Status = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [pulling, setPulling] = useState(false);
 
   useEffect(() => {
     checkStatus();
@@ -14,17 +13,17 @@ const OllamaStatus = () => {
   const checkStatus = async () => {
     setLoading(true);
     try {
-      console.log('Checking Ollama status...');
-      const ollamaStatus = await apiService.getOllamaStatus();
-      console.log('Ollama status result:', ollamaStatus);
-      setStatus(ollamaStatus);
+      console.log('Checking DistilGPT2 status...');
+      const distilGPT2Status = await apiService.getDistilGPT2Status();
+      console.log('DistilGPT2 status result:', distilGPT2Status);
+      setStatus(distilGPT2Status);
     } catch (error) {
-      console.error('Error checking Ollama status:', error);
+      console.error('Error checking DistilGPT2 status:', error);
       setStatus({ 
         available: false, 
-        models: [], 
-        currentModel: null, 
-        hasQwenModel: false,
+        loading: false,
+        model: 'distilgpt2',
+        provider: 'transformers.js',
         error: error.message 
       });
     } finally {
@@ -32,24 +31,10 @@ const OllamaStatus = () => {
     }
   };
 
-  const pullModel = async () => {
-    setPulling(true);
-    try {
-      const success = await apiService.pullQwenModel();
-      if (success) {
-        await checkStatus(); // Refresh status
-      }
-    } catch (error) {
-      console.error('Error pulling model:', error);
-    } finally {
-      setPulling(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="ollama-status">
-        <div className="status-loading">🔍 Checking Ollama status...</div>
+        <div className="status-loading">🔍 Checking DistilGPT2 status...</div>
       </div>
     );
   }
@@ -68,108 +53,64 @@ const OllamaStatus = () => {
       </div>
       
       <div className="status-content">
-        {status.available ? (
+        {status.loading ? (
+          <div className="status-loading">
+            <div className="status-indicator loading">
+              📦 Loading DistilGPT2 model...
+            </div>
+            <p>This may take a few moments on first load. The model is ~80MB.</p>
+          </div>
+        ) : status.available ? (
           <div className="status-available">
             <div className="status-indicator available">
-              ✅ Ollama is running
+              ✅ DistilGPT2 is ready
             </div>
             
-            <div className="models-list">
-              <h4>Available Models:</h4>
-              {status.models.length > 0 ? (
-                <ul>
-                  {status.models.map((model, index) => (
-                    <li key={index} className={
-                      model.name.includes('qwen') || model.name.includes('Qwen') ? 'current-model' : ''
-                    }>
-                      {model.name} ({model.size ? `${(model.size / 1024 / 1024 / 1024).toFixed(1)}GB` : 'Unknown size'})
-                      {(model.name.includes('qwen') || model.name.includes('Qwen')) && ' (Current)'}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No models found</p>
-              )}
+            <div className="model-info">
+              <h4>Model Information:</h4>
+              <ul>
+                <li><strong>Model:</strong> {status.model}</li>
+                <li><strong>Provider:</strong> {status.provider}</li>
+                <li><strong>Type:</strong> In-browser AI (no server required)</li>
+                <li><strong>Size:</strong> ~80MB (cached after first load)</li>
+              </ul>
             </div>
             
-            {!status.hasQwenModel && (
-              <div className="model-actions">
-                <p>Qwen2.5:3b model not found. Pull it to enable AI features:</p>
-                <button 
-                  onClick={pullModel} 
-                  className="pull-btn"
-                  disabled={pulling}
-                >
-                  {pulling ? '📥 Pulling Qwen2.5:3b...' : '📥 Pull Qwen2.5:3b Model'}
-                </button>
-              </div>
-            )}
-            
-            {status.hasQwenModel && (
-              <div className="model-status">
-                <p>✅ Qwen model found and ready to use!</p>
-                <p><strong>Current model:</strong> {status.currentModel}</p>
-              </div>
-            )}
+            <div className="model-status">
+              <p>✅ DistilGPT2 model loaded and ready to use!</p>
+              <p><strong>Features:</strong> Chat responses, code review, and more</p>
+            </div>
           </div>
         ) : (
           <div className="status-unavailable">
             <div className="status-indicator unavailable">
-              ❌ Ollama not available
+              ❌ DistilGPT2 not available
             </div>
             
             {status.error && (
-              <div className="error-info">curl http://localhost:11434/api/tags
+              <div className="error-info">
                 <p><strong>Error:</strong> {status.error}</p>
               </div>
             )}
             
             <div className="setup-instructions">
-              <h4>Setup Instructions:</h4>
-              <ol>
-                <li>
-                  <strong>Install Ollama:</strong>
-                  <a href="https://ollama.ai/download" target="_blank" rel="noopener noreferrer">
-                    Download from ollama.ai
-                  </a>
-                </li>
-                <li>
-                  <strong>Start Ollama:</strong>
-                  <code>ollama serve</code>
-                </li>
-                <li>
-                  <strong>Pull Qwen2.5:3b model:</strong>
-                  <code>ollama pull qwen2.5:3b</code>
-                </li>
-                <li>
-                  <strong>Refresh this page</strong>
-                </li>
-              </ol>
-              
-              <div className="terminal-commands">
-                <h5>Quick Setup Commands:</h5>
-                <pre>
-{`# Install Ollama (Linux/macOS)
-curl -fsSL https://ollama.ai/install.sh | sh
-
-# Start Ollama
-ollama serve
-
-# Pull Qwen2.5:3b model
-ollama pull qwen2.5:3b
-
-# Verify installation
-ollama list`}
-                </pre>
-              </div>
+              <h4>About DistilGPT2:</h4>
+              <ul>
+                <li>✅ <strong>Works on GitHub Pages</strong> - No backend required</li>
+                <li>✅ <strong>Privacy-focused</strong> - All processing happens in your browser</li>
+                <li>✅ <strong>Offline capable</strong> - Works without internet after first load</li>
+                <li>⚠️ <strong>Limited knowledge</strong> - Generic responses, not DevOps-specialized</li>
+                <li>⚠️ <strong>Model size</strong> - ~80MB download on first use</li>
+              </ul>
               
               <div className="troubleshooting">
                 <h5>Troubleshooting:</h5>
                 <ul>
-                  <li>Make sure Ollama is running: <code>ollama serve</code></li>
-                  <li>Check if Ollama is accessible: <code>curl http://localhost:11434/api/tags</code></li>
-                  <li>Verify model is installed: <code>ollama list</code></li>
+                  <li>Make sure JavaScript is enabled in your browser</li>
+                  <li>Check your internet connection for the initial model download</li>
+                  <li>Try refreshing the page if the model fails to load</li>
                   <li>Check browser console for detailed error messages</li>
+                  <li>Ensure you have sufficient memory available (~200MB free)</li>
                 </ul>
               </div>
             </div>
@@ -179,14 +120,14 @@ ollama list`}
       
       <div className="status-footer">
         <p>
-          <strong>Note:</strong> This is a GitHub Pages deployment. The app will use fallback responses when Ollama is not available.
+          <strong>Note:</strong> DistilGPT2 is a general-purpose language model. For specialized DevOps knowledge, consider using a local AI model like Ollama with Qwen.
         </p>
         <p>
-          <strong>Local Development:</strong> For full AI features, run the app locally with <code>npm run dev</code>
+          <strong>Performance:</strong> Responses may take 2-5 seconds to generate, depending on your device.
         </p>
       </div>
     </div>
   );
 };
 
-export default OllamaStatus; 
+export default DistilGPT2Status; 
