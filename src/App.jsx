@@ -101,6 +101,41 @@ function App() {
     localStorage.setItem('devops-dark-mode', darkMode);
   }, [darkMode]);
 
+  // AI Status checking for Q&A page
+  useEffect(() => {
+    const checkAIStatus = async () => {
+      try {
+        const status = await apiService.getDistilGPT2Status()
+        const statusElement = document.getElementById('qa-ai-status')
+        if (statusElement) {
+          if (status.isAvailable) {
+            statusElement.textContent = '🤖 DistilGPT2'
+            statusElement.className = 'ai-status-badge available'
+          } else if (status.isLoading) {
+            statusElement.textContent = '⏳ Loading...'
+            statusElement.className = 'ai-status-badge loading'
+          } else {
+            statusElement.textContent = '🔄 Fallback'
+            statusElement.className = 'ai-status-badge fallback'
+          }
+        }
+      } catch (error) {
+        console.error('Error checking AI status:', error)
+        const statusElement = document.getElementById('qa-ai-status')
+        if (statusElement) {
+          statusElement.textContent = '🔄 Fallback'
+          statusElement.className = 'ai-status-badge fallback'
+        }
+      }
+    }
+
+    // Check status immediately and then every 5 seconds
+    checkAIStatus()
+    const interval = setInterval(checkAIStatus, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   const handleLogin = (userData) => {
     setIsLoggedIn(true);
     setUser(userData);
@@ -618,6 +653,10 @@ function App() {
           <h1 className="ai-title">❓ AI Q&A</h1>
           <p className="ai-subtitle">Get instant answers to your DevOps questions with AI assistance</p>
           <div className="ai-header-actions">
+            <div className="ai-status-indicator">
+              <span className="ai-status-label">AI Status:</span>
+              <span className="ai-status-badge" id="qa-ai-status">🔄 Checking...</span>
+            </div>
             <button 
               className="theme-toggle" 
               onClick={() => setDarkMode(!darkMode)}
@@ -730,7 +769,7 @@ function App() {
                       <span className="question-timestamp">{q.timestamp}</span>
                       {q.provider && (
                         <span className={`provider ${q.fallback ? 'fallback' : 'primary'}`}>
-                          {q.fallback ? '🔄 Fallback' : '🤖 AI'}
+                          {q.fallback ? '🔄 Fallback' : '🤖 DistilGPT2'}
                         </span>
                       )}
                     </div>
