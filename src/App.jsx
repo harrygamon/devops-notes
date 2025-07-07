@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css'
 import { HashRouter as Router, Route, Routes, Link, useNavigate, Navigate } from 'react-router-dom'
 import AIPage from './pages/AIPage'
@@ -6,7 +6,48 @@ import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
 import apiService from './services/api'
 
+// Error boundary component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('App Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ 
+          padding: '20px', 
+          color: 'white', 
+          backgroundColor: '#1a1a1a',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <h1>Something went wrong</h1>
+          <p>Error: {this.state.error?.message}</p>
+          <button onClick={() => window.location.reload()}>Reload Page</button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function App() {
+  console.log('App component rendering...');
+  
   const [notes, setNotes] = useState([])
   const [currentNote, setCurrentNote] = useState('')
   const [selectedNote, setSelectedNote] = useState(null)
@@ -29,6 +70,8 @@ function App() {
     const savedUser = localStorage.getItem('devops-user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
+
+  console.log('App state initialized:', { darkMode, isLoggedIn, user });
 
   // Load notes from localStorage on component mount
   useEffect(() => {
@@ -501,55 +544,57 @@ function App() {
   )
 
   return (
-    <Router>
-      <div className="app">
-        <nav className="navbar">
-          <div className="nav-brand">
-            <Link to="/">🚀 DevOps Notes</Link>
-          </div>
-          <div className="nav-links">
-            <Link to="/" className="nav-link">🏠 Home</Link>
-            <Link to="/notes" className="nav-link">📝 Notes</Link>
-            <Link to="/ai" className="nav-link">🤖 AI Assistant</Link>
-            <Link to="/review" className="nav-link">🔍 Code Review</Link>
-            <Link to="/questions" className="nav-link">❓ Q&A</Link>
-            <Link to="/admin" className="nav-link">⚙️ Admin</Link>
-          </div>
-          {isLoggedIn && (
-            <div className="nav-user">
-              <span className="user-greeting">Welcome, {user?.username}!</span>
-              <button onClick={handleLogout} className="logout-btn">Logout</button>
+    <ErrorBoundary>
+      <Router>
+        <div className="app">
+          <nav className="navbar">
+            <div className="nav-brand">
+              <Link to="/">🚀 DevOps Notes</Link>
             </div>
-          )}
-        </nav>
+            <div className="nav-links">
+              <Link to="/" className="nav-link">🏠 Home</Link>
+              <Link to="/notes" className="nav-link">📝 Notes</Link>
+              <Link to="/ai" className="nav-link">🤖 AI Assistant</Link>
+              <Link to="/review" className="nav-link">🔍 Code Review</Link>
+              <Link to="/questions" className="nav-link">❓ Q&A</Link>
+              <Link to="/admin" className="nav-link">⚙️ Admin</Link>
+            </div>
+            {isLoggedIn && (
+              <div className="nav-user">
+                <span className="user-greeting">Welcome, {user?.username}!</span>
+                <button onClick={handleLogout} className="logout-btn">Logout</button>
+              </div>
+            )}
+          </nav>
 
-        <main className="main-content">
-          <Routes>
-            <Route path="/login" element={
-              isLoggedIn ? <Navigate to="/" /> : <LoginPage onLogin={handleLogin} />
-            } />
-            <Route path="/" element={
-              isLoggedIn ? renderWelcomePage() : <Navigate to="/login" />
-            } />
-            <Route path="/notes" element={
-              isLoggedIn ? renderNotesPage() : <Navigate to="/login" />
-            } />
-            <Route path="/ai" element={
-              isLoggedIn ? <AIPage darkMode={darkMode} setDarkMode={setDarkMode} /> : <Navigate to="/login" />
-            } />
-            <Route path="/review" element={
-              isLoggedIn ? renderAiReviewerPage() : <Navigate to="/login" />
-            } />
-            <Route path="/questions" element={
-              isLoggedIn ? renderAiQuestionsPage() : <Navigate to="/login" />
-            } />
-            <Route path="/admin" element={
-              isLoggedIn ? <AdminPage darkMode={darkMode} setDarkMode={setDarkMode} /> : <Navigate to="/login" />
-            } />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+          <main className="main-content">
+            <Routes>
+              <Route path="/login" element={
+                isLoggedIn ? <Navigate to="/" /> : <LoginPage onLogin={handleLogin} />
+              } />
+              <Route path="/" element={
+                isLoggedIn ? renderWelcomePage() : <Navigate to="/login" />
+              } />
+              <Route path="/notes" element={
+                isLoggedIn ? renderNotesPage() : <Navigate to="/login" />
+              } />
+              <Route path="/ai" element={
+                isLoggedIn ? <AIPage darkMode={darkMode} setDarkMode={setDarkMode} /> : <Navigate to="/login" />
+              } />
+              <Route path="/review" element={
+                isLoggedIn ? renderAiReviewerPage() : <Navigate to="/login" />
+              } />
+              <Route path="/questions" element={
+                isLoggedIn ? renderAiQuestionsPage() : <Navigate to="/login" />
+              } />
+              <Route path="/admin" element={
+                isLoggedIn ? <AdminPage darkMode={darkMode} setDarkMode={setDarkMode} /> : <Navigate to="/login" />
+              } />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </ErrorBoundary>
   )
 }
 
