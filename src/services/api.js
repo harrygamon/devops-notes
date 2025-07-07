@@ -35,20 +35,37 @@ class APIService {
         const data = await response.json();
         this.isOllamaAvailable = data.models && data.models.length > 0;
         console.log('Ollama available:', this.isOllamaAvailable);
+        console.log('Available models:', data.models ? data.models.map(m => m.name) : 'No models');
         
-        // Check if Qwen3 model is available
+        // Check if Qwen model is available (check for various possible names)
         if (this.isOllamaAvailable) {
           const hasQwen = data.models.some(model => 
-            model.name.includes('qwen') || model.name.includes('Qwen')
+            model.name.includes('qwen') || 
+            model.name.includes('Qwen') ||
+            model.name.includes('qwen2.5') ||
+            model.name.includes('Qwen2.5')
           );
-          if (!hasQwen) {
+          if (hasQwen) {
+            console.log('Qwen model found!');
+            // Update model name to match what's actually available
+            const qwenModel = data.models.find(model => 
+              model.name.includes('qwen') || 
+              model.name.includes('Qwen') ||
+              model.name.includes('qwen2.5') ||
+              model.name.includes('Qwen2.5')
+            );
+            if (qwenModel) {
+              this.model = qwenModel.name;
+              console.log('Using model:', this.model);
+            }
+          } else {
             console.log('Qwen model not found. Available models:', data.models.map(m => m.name));
           }
         }
       }
     } catch (error) {
       this.isOllamaAvailable = false;
-      console.log('Ollama not available, using fallback responses');
+      console.log('Ollama not available, using fallback responses:', error.message);
     }
   }
 
@@ -160,14 +177,28 @@ Please provide a comprehensive review with actionable recommendations.`;
   // Check if Ollama is available and get model info
   async getOllamaStatus() {
     try {
+      console.log('Checking Ollama status at:', this.ollamaURL);
       const response = await fetch(`${this.ollamaURL}/api/tags`);
       if (response.ok) {
         const data = await response.json();
+        console.log('Ollama status response:', data);
+        
+        // Check if Qwen model is available
+        const hasQwen = data.models && data.models.some(model => 
+          model.name.includes('qwen') || 
+          model.name.includes('Qwen') ||
+          model.name.includes('qwen2.5') ||
+          model.name.includes('Qwen2.5')
+        );
+        
         return {
           available: true,
           models: data.models || [],
-          currentModel: this.model
+          currentModel: this.model,
+          hasQwenModel: hasQwen
         };
+      } else {
+        console.error('Ollama API returned error:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error checking Ollama status:', error);
@@ -175,7 +206,8 @@ Please provide a comprehensive review with actionable recommendations.`;
     return {
       available: false,
       models: [],
-      currentModel: null
+      currentModel: null,
+      hasQwenModel: false
     };
   }
 

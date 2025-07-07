@@ -14,11 +14,19 @@ const OllamaStatus = () => {
   const checkStatus = async () => {
     setLoading(true);
     try {
+      console.log('Checking Ollama status...');
       const ollamaStatus = await apiService.getOllamaStatus();
+      console.log('Ollama status result:', ollamaStatus);
       setStatus(ollamaStatus);
     } catch (error) {
       console.error('Error checking Ollama status:', error);
-      setStatus({ available: false, models: [], currentModel: null });
+      setStatus({ 
+        available: false, 
+        models: [], 
+        currentModel: null, 
+        hasQwenModel: false,
+        error: error.message 
+      });
     } finally {
       setLoading(false);
     }
@@ -71,9 +79,11 @@ const OllamaStatus = () => {
               {status.models.length > 0 ? (
                 <ul>
                   {status.models.map((model, index) => (
-                    <li key={index} className={model.name.includes('qwen') ? 'current-model' : ''}>
+                    <li key={index} className={
+                      model.name.includes('qwen') || model.name.includes('Qwen') ? 'current-model' : ''
+                    }>
                       {model.name} ({model.size ? `${(model.size / 1024 / 1024 / 1024).toFixed(1)}GB` : 'Unknown size'})
-                      {model.name.includes('qwen') && ' (Current)'}
+                      {(model.name.includes('qwen') || model.name.includes('Qwen')) && ' (Current)'}
                     </li>
                   ))}
                 </ul>
@@ -82,16 +92,23 @@ const OllamaStatus = () => {
               )}
             </div>
             
-            {!status.models.some(m => m.name.includes('qwen')) && (
+            {!status.hasQwenModel && (
               <div className="model-actions">
-                <p>Qwen3 model not found. Pull it to enable AI features:</p>
+                <p>Qwen2.5:3b model not found. Pull it to enable AI features:</p>
                 <button 
                   onClick={pullModel} 
                   className="pull-btn"
                   disabled={pulling}
                 >
-                  {pulling ? '📥 Pulling Qwen3...' : '📥 Pull Qwen3 Model'}
+                  {pulling ? '📥 Pulling Qwen2.5:3b...' : '📥 Pull Qwen2.5:3b Model'}
                 </button>
+              </div>
+            )}
+            
+            {status.hasQwenModel && (
+              <div className="model-status">
+                <p>✅ Qwen model found and ready to use!</p>
+                <p><strong>Current model:</strong> {status.currentModel}</p>
               </div>
             )}
           </div>
@@ -100,6 +117,12 @@ const OllamaStatus = () => {
             <div className="status-indicator unavailable">
               ❌ Ollama not available
             </div>
+            
+            {status.error && (
+              <div className="error-info">
+                <p><strong>Error:</strong> {status.error}</p>
+              </div>
+            )}
             
             <div className="setup-instructions">
               <h4>Setup Instructions:</h4>
@@ -115,7 +138,7 @@ const OllamaStatus = () => {
                   <code>ollama serve</code>
                 </li>
                 <li>
-                  <strong>Pull Qwen3 model:</strong>
+                  <strong>Pull Qwen2.5:3b model:</strong>
                   <code>ollama pull qwen2.5:3b</code>
                 </li>
                 <li>
@@ -132,9 +155,22 @@ curl -fsSL https://ollama.ai/install.sh | sh
 # Start Ollama
 ollama serve
 
-# Pull Qwen3 model
-ollama pull qwen2.5:3b`}
+# Pull Qwen2.5:3b model
+ollama pull qwen2.5:3b
+
+# Verify installation
+ollama list`}
                 </pre>
+              </div>
+              
+              <div className="troubleshooting">
+                <h5>Troubleshooting:</h5>
+                <ul>
+                  <li>Make sure Ollama is running: <code>ollama serve</code></li>
+                  <li>Check if Ollama is accessible: <code>curl http://localhost:11434/api/tags</code></li>
+                  <li>Verify model is installed: <code>ollama list</code></li>
+                  <li>Check browser console for detailed error messages</li>
+                </ul>
               </div>
             </div>
           </div>
