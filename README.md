@@ -40,7 +40,7 @@ A modern web application that combines note-taking with AI-powered DevOps assist
 - **Styling**: CSS3 with modern design patterns
 - **Storage**: LocalStorage for persistence
 - **Deployment**: GitHub Pages (static hosting)
-- **AI**: Client-side fallback responses with backend support
+- **AI**: Client-side fallback responses
 
 ## 📋 Prerequisites
 
@@ -52,8 +52,8 @@ A modern web application that combines note-taking with AI-powered DevOps assist
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repo-url>
-cd electron-devops-notes
+git clone https://github.com/harrygamon/devops-notes.git
+cd devops-notes
 ```
 
 ### 2. Install Dependencies
@@ -63,11 +63,7 @@ npm install
 
 ### 3. Start Development Mode
 ```bash
-# Start development server
 npm run dev
-
-# Or start with backend (if available)
-npm run start-dev
 ```
 
 ### 4. Build for Production
@@ -113,8 +109,6 @@ npm run deploy
 | `npm run preview` | Preview production build |
 | `npm run deploy` | Deploy to GitHub Pages |
 | `npm run lint` | Run ESLint |
-| `npm run electron` | Start Electron app (desktop mode) |
-| `npm run server` | Start Express backend (optional) |
 
 ## 🤖 AI Configuration
 
@@ -127,23 +121,17 @@ The app includes comprehensive fallback responses for common DevOps topics:
 - Monitoring and observability
 - Security best practices
 
-### Backend AI Support (Optional)
-For enhanced AI capabilities, you can deploy the backend:
-
-1. **Deploy backend** to a cloud service (Railway, Render, etc.)
-2. **Update API URL** in `src/services/api.js`
-3. **Restart the app** to use backend AI
-
 ## 📁 Project Structure
 
 ```
-electron-devops-notes/
+devops-notes/
 ├── src/
 │   ├── components/          # React components
 │   │   ├── Chatbot.jsx     # AI chat interface
 │   │   └── Chatbot.css     # Chat styling
 │   ├── pages/              # Page components
-│   │   └── AIPage.jsx      # AI assistant page
+│   │   ├── AIPage.jsx      # AI assistant page
+│   │   └── AIPage.css      # AI page styling
 │   ├── services/           # API services
 │   │   └── api.js          # Client-side API with fallbacks
 │   ├── App.jsx             # Main app component
@@ -204,12 +192,6 @@ The note system includes:
 ```bash
 npm run build:gh-pages
 npm run deploy
-```
-
-### Desktop (Electron)
-```bash
-npm run build
-npm run dist
 ```
 
 ### Regular Web Deployment
