@@ -198,17 +198,16 @@ app.post('/api/code-review', async (req, res) => {
 1. **Code Quality**: Best practices, readability, maintainability
 2. **Security**: Potential vulnerabilities, security best practices
 3. **Performance**: Optimization opportunities, resource usage
-4. **DevOps Best Practices**: Containerization, CI/CD considerations, infrastructure
-5. **Error Handling**: Robustness, logging, monitoring
+4. **DevOps Best Practices**: Infrastructure considerations, deployment strategies
 
 Code to review:
 \`\`\`
 ${code}
 \`\`\`
 
-${context ? `Additional context: ${context}` : ''}
+Context: ${context || 'No additional context provided'}
 
-Please provide a comprehensive review with specific recommendations for improvement.`;
+Please provide a comprehensive review with specific recommendations.`;
 
     // Use Ollama API for code review
     try {
@@ -229,19 +228,19 @@ Please provide a comprehensive review with specific recommendations for improvem
       }
       
       const data = await ollamaResponse.json();
-      const response = data.response || 'Sorry, I could not generate a code review.';
+      const review = data.response || 'Sorry, I could not generate a code review.';
       
       res.json({ 
-        response,
+        review,
         provider: 'ollama'
       });
       
     } catch (ollamaError) {
-      console.error('Ollama API Error for code review:', ollamaError);
-      // Provide a fallback code review response
-      const fallbackResponse = generateFallbackCodeReview(code, context);
+      console.error('Ollama API Error:', ollamaError);
+      // Provide fallback code review
+      const fallbackReview = generateFallbackCodeReview(code, context);
       res.json({ 
-        response: fallbackResponse,
+        review: fallbackReview,
         provider: 'fallback',
         fallback: true
       });
@@ -256,46 +255,81 @@ Please provide a comprehensive review with specific recommendations for improvem
   }
 });
 
-// News API endpoint
-app.get('/api/news', async (req, res) => {
-  try {
-    // Use the provided API key directly
-    const newsApiKey = process.env.NEWS_API_KEY || '5f3660bffcef4ad49b06e100946f3d44';
-    
-    if (!newsApiKey || newsApiKey === 'your_news_api_key_here') {
-      return res.status(500).json({ 
-        error: 'News API key not configured',
-        fallback: true 
-      });
+// DevOps News endpoint (simulated)
+app.get('/api/news', (req, res) => {
+  const news = [
+    {
+      title: "HashiCorp Releases Terraform 1.8 with Enhanced Security Features",
+      description: "Terraform 1.8 introduces new provider features, improved state management, and enhanced security scanning integrations for better infrastructure security.",
+      url: "https://www.hashicorp.com/blog/terraform-1-8",
+      publishedAt: "2025-07-06T10:00:00Z",
+      source: { name: "HashiCorp Blog" }
+    },
+    {
+      title: "GitHub Actions Adds Native OIDC Support for Secure Deployments",
+      description: "GitHub Actions now supports native OIDC for secure cloud deployments, simplifying secrets management for CI/CD pipelines across AWS, Azure, and GCP.",
+      url: "https://github.blog/2025-07-05-github-actions-oidc-support/",
+      publishedAt: "2025-07-05T14:30:00Z",
+      source: { name: "GitHub Blog" }
+    },
+    {
+      title: "Kubernetes 1.32 Released with Improved Autoscaling",
+      description: "The latest Kubernetes release brings improved autoscaling capabilities, new Custom Resource Definitions (CRDs), and enhanced observability features for better cluster management.",
+      url: "https://kubernetes.io/blog/2025/07/04/kubernetes-1-32-release/",
+      publishedAt: "2025-07-04T09:15:00Z",
+      source: { name: "Kubernetes Blog" }
+    },
+    {
+      title: "ArgoCD 3.0 Announced with New UI and Advanced GitOps Workflows",
+      description: "ArgoCD 3.0 introduces a completely redesigned UI, better GitOps workflows, and advanced RBAC controls for enterprise teams managing Kubernetes deployments.",
+      url: "https://argoproj.github.io/argo-cd/blog/2025/07/03/argocd-3-0-announcement/",
+      publishedAt: "2025-07-03T16:45:00Z",
+      source: { name: "ArgoCD Blog" }
+    },
+    {
+      title: "Docker Desktop 5.0 Brings Enhanced Container Security",
+      description: "Docker Desktop 5.0 introduces new security features including vulnerability scanning, secrets management, and improved container isolation for development environments.",
+      url: "https://www.docker.com/blog/docker-desktop-5-0-security-features/",
+      publishedAt: "2025-07-02T11:20:00Z",
+      source: { name: "Docker Blog" }
+    },
+    {
+      title: "Jenkins LTS 2.414 Released with Pipeline Improvements",
+      description: "Jenkins LTS 2.414 brings significant pipeline improvements, better plugin management, and enhanced security features for continuous integration workflows.",
+      url: "https://www.jenkins.io/blog/2025/07/01/jenkins-lts-2-414-release/",
+      publishedAt: "2025-07-01T13:10:00Z",
+      source: { name: "Jenkins Blog" }
+    },
+    {
+      title: "Prometheus 3.0 Introduces Native Histograms and Better Performance",
+      description: "Prometheus 3.0 introduces native histogram support, improved query performance, and better integration with modern observability stacks.",
+      url: "https://prometheus.io/blog/2025/06/30/prometheus-3-0-release/",
+      publishedAt: "2025-06-30T08:30:00Z",
+      source: { name: "Prometheus Blog" }
+    },
+    {
+      title: "AWS EKS Anywhere Now Supports ARM64 Architecture",
+      description: "AWS EKS Anywhere now supports ARM64 architecture, enabling customers to run Kubernetes workloads on ARM-based servers for better cost optimization.",
+      url: "https://aws.amazon.com/blogs/containers/eks-anywhere-arm64-support/",
+      publishedAt: "2025-06-29T15:45:00Z",
+      source: { name: "AWS Blog" }
     }
+  ];
 
-    const response = await fetch(
-      `https://newsapi.org/v2/everything?q=devops&language=en&sortBy=publishedAt&pageSize=10&apiKey=${newsApiKey}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`News API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    if (data.status === 'error') {
-      throw new Error(data.message);
-    }
-
-    res.json(data);
-
-  } catch (error) {
-    console.error('News API Error:', error);
-    res.status(500).json({ 
-      error: 'News API error',
-      fallback: true 
-    });
-  }
+  res.json({
+    status: 'ok',
+    articles: news,
+    fallback: true
+  });
 });
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`Backend server running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`Ollama support enabled at ${OLLAMA_API_URL}`);
-}); 
+  console.log(`🚀 DevOps Notes Server running on port ${PORT}`);
+  console.log(`📡 AI Assistant available at http://localhost:${PORT}/api/chat`);
+  console.log(`🔍 Code Review available at http://localhost:${PORT}/api/code-review`);
+  console.log(`📰 News available at http://localhost:${PORT}/api/news`);
+  console.log(`💚 Health check at http://localhost:${PORT}/health`);
+});
+
+export default app; 
