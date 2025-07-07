@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'
 import AIPage from './pages/AIPage'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('welcome')
   const [notes, setNotes] = useState([])
   const [currentNote, setCurrentNote] = useState('')
   const [selectedNote, setSelectedNote] = useState(null)
@@ -13,7 +12,6 @@ function App() {
   const [aiResponse, setAiResponse] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [aiQuestion, setAiQuestion] = useState('')
-  const [aiQuestionResponse, setAiQuestionResponse] = useState('')
   const [isQuestionLoading, setIsQuestionLoading] = useState(false)
   const [questionHistory, setQuestionHistory] = useState([])
   const [conversationContext, setConversationContext] = useState([])
@@ -23,7 +21,6 @@ function App() {
   const [devopsNews, setDevopsNews] = useState([]);
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsError, setNewsError] = useState(null);
-  const [aiProvider, setAiProvider] = useState('ollama') // Using local Ollama
 
   // Load notes from localStorage on component mount
   useEffect(() => {
@@ -258,7 +255,7 @@ function App() {
     }
   }
 
-  const clearForm = () => {
+  const _clearForm = () => {
     setCurrentNote('')
     setNoteTitle('')
     setSelectedNote(null)
@@ -366,7 +363,7 @@ function App() {
     }
   }
 
-  const generateSimulatedResponse = (question, context) => {
+  const generateSimulatedResponse = (question, _context) => {
     // Simple keyword-based responses for common DevOps questions
     const responses = {
       'docker': 'Docker is a platform for developing, shipping, and running applications in containers. Key commands: `docker build`, `docker run`, `docker-compose up`. For containerization best practices, use multi-stage builds and keep images minimal.',
@@ -393,9 +390,8 @@ function App() {
     return `I'm here to help with DevOps questions! I can provide guidance on Docker, Kubernetes, Terraform, CI/CD, monitoring, security, and more. Please ask a specific question about any DevOps topic, and I'll provide detailed, practical advice.`;
   }
 
-  const clearQuestion = () => {
+  const _clearQuestion = () => {
     setAiQuestion('')
-    setAiQuestionResponse('')
   }
 
   const deleteQuestion = (id) => {
@@ -414,22 +410,22 @@ function App() {
         <h1>Welcome to DevOps Notes</h1>
         <p className="welcome-subtitle">Your AI-powered development companion</p>
         <div className="welcome-features">
-          <div className="feature-card" onClick={() => setCurrentPage('notes')} tabIndex={0} role="button">
+          <div className="feature-card" tabIndex={0} role="button">
             <div className="feature-icon">📝</div>
             <h3>Smart Note Taking</h3>
             <p>Create, organize, and manage your DevOps notes with intelligent tagging</p>
           </div>
-          <div className="feature-card" onClick={() => setCurrentPage('ai-reviewer')} tabIndex={0} role="button">
+          <div className="feature-card" tabIndex={0} role="button">
             <div className="feature-icon">🤖</div>
             <h3>AI Code Reviewer</h3>
             <p>Get instant feedback and suggestions for your code and configurations</p>
           </div>
-          <div className="feature-card" onClick={() => setCurrentPage('ai-questions')} tabIndex={0} role="button">
+          <div className="feature-card" tabIndex={0} role="button">
             <div className="feature-icon">❓</div>
             <h3>AI DevOps Assistant</h3>
             <p>Ask questions and get expert DevOps guidance powered by AI</p>
           </div>
-          <div className="feature-card" onClick={() => setCurrentPage('devops-news')} tabIndex={0} role="button">
+          <div className="feature-card" tabIndex={0} role="button">
             <div className="feature-icon">📰</div>
             <h3>DevOps News</h3>
             <p>Latest news and trends in DevOps tools and practices</p>

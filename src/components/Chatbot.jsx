@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './Chatbot.css';
 
 const Chatbot = () => {
@@ -23,7 +23,7 @@ const Chatbot = () => {
 
       const data = await response.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
-    } catch (err) {
+    } catch (_err) {
       setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Error talking to AI' }]);
     } finally {
       setLoading(false);
