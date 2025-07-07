@@ -8,8 +8,25 @@ class APIService {
     this.isBackendAvailable = false;
     this.distilGPT2Service = distilGPT2Service;
     
-    // Initialize DistilGPT2 model
-    this.initializeDistilGPT2();
+    // Start preloading DistilGPT2 model immediately
+    this.preloadDistilGPT2();
+  }
+
+  // Preload DistilGPT2 in the background
+  async preloadDistilGPT2() {
+    // Use requestIdleCallback if available, otherwise setTimeout
+    const scheduleLoad = (callback) => {
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(callback, { timeout: 5000 });
+      } else {
+        setTimeout(callback, 1000);
+      }
+    };
+
+    scheduleLoad(() => {
+      console.log('🚀 Starting DistilGPT2 preload...');
+      this.initializeDistilGPT2();
+    });
   }
 
   // Initialize DistilGPT2 model for in-browser AI
